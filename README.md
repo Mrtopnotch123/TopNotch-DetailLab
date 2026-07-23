@@ -1,1 +1,0 @@
-# TopNotch-DetailLab
