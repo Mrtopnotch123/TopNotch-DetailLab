@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070707">
+  <meta name="description" content="Build a custom mobile interior detail with transparent starting prices and automatic best-value guidance.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Build Your Own Interior Detail | TopNotch DetailLab">
+  <meta property="og:description" content="Build a custom mobile interior detail with transparent starting prices and automatic best-value guidance.">
+  <meta property="og:image" content="https://topnotchdetaillab.com/assets/images/C3C99B6F-A040-42DA-A6B3-3EB229F7A068.png">
+  <meta property="og:url" content="https://topnotchdetaillab.com/build/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://topnotchdetaillab.com/build/">
+  <link rel="icon" href="../assets/images/C3C99B6F-A040-42DA-A6B3-3EB229F7A068.png">
+  <link rel="apple-touch-icon" href="../assets/images/C3C99B6F-A040-42DA-A6B3-3EB229F7A068.png">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <title>Build Your Own Interior Detail | TopNotch DetailLab</title>
+</head>
+<body>
+  <div class="scroll-progress" aria-hidden="true"><span id="scrollProgress"></span></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header" id="siteHeader">
+    <div class="container nav-wrap">
+      <a class="brand" href="../index.html" aria-label="TopNotch DetailLab home">
+        <img src="../assets/images/C3C99B6F-A040-42DA-A6B3-3EB229F7A068.png" alt="TopNotch DetailLab logo" width="58" height="58">
+        <span><strong>TopNotch</strong><small>DetailLab</small></span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="siteNav">
+        <span class="sr-only">Open navigation</span><span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="siteNav" aria-label="Primary navigation">
+        <a href="../index.html">Home</a>
+<a href="../services/">Services</a>
+<a href="../build/" aria-current="page">Build Your Own</a>
+<a href="../results/">Results</a>
+<a href="../faq/">FAQ</a>
+<a href="../about/">About</a>
+<a class="button button-small" href="../book/">Book Now</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero"><div class="container reveal"><p class="eyebrow">Build Your Own Reset</p><h1>Your interior. Your priorities. Your Reset.</h1><p>Choose the work you need and watch your starting estimate update. No unnecessary services and no paying twice for the same work.</p></div></section>
+
+    <section class="section">
+      <div class="container builder-layout">
+        <form class="builder-form reveal" id="builderForm">
+          <fieldset>
+            <legend>Core Cleaning</legend>
+            <label class="service-option"><input type="checkbox" data-service="Interior Vacuum" data-price="20"> <span><strong>Interior Vacuum</strong><small>$20</small></span></label>
+            <label class="service-option"><input type="checkbox" data-service="Light Surface Wipe-Down" data-price="15" data-group="surface"> <span><strong>Light Surface Wipe-Down</strong><small>$15</small></span></label>
+            <label class="service-option"><input type="checkbox" data-service="Thorough Interior-Surface Cleaning" data-price="35" data-group="surface"> <span><strong>Thorough Interior-Surface Cleaning</strong><small>$35</small></span></label>
+            <label class="service-option"><input type="checkbox" data-service="Interior Glass" data-price="8"> <span><strong>Interior Glass</strong><small>$8</small></span></label>
+            <label class="service-option"><input type="checkbox" data-service="Cargo-Area Cleaning" data-price="12"> <span><strong>Cargo-Area Cleaning</strong><small>$12</small></span></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Detailed Cleaning</legend>
+            <label class="service-option"><input type="checkbox" data-service="Air Blowout, Vents & Crevices" data-price="20"> <span><strong>Air Blowout, Vents &amp; Crevices</strong><small>$20</small></span></label>
+            <label class="service-option"><input type="checkbox" data-service="Door-Jamb Cleaning" data-price="8"> <span><strong>Door-Jamb Cleaning</strong><small>$8</small></span></label>
+            <label class="service-option"><input type="checkbox" data-service="One Localized Extraction Area" data-price="15" data-group="extraction"> <span><strong>One Localized Extraction Area</strong><small>$15</small></span></label>
+            <label class="service-option"><input type="checkbox" data-service="Two Localized Extraction Areas" data-price="25" data-group="extraction"> <span><strong>Two Localized Extraction Areas</strong><small>$25</small></span></label>
+            <label class="service-option"><input type="checkbox" data-service="Full Carpet Extraction" data-price="40" data-group="carpet"> <span><strong>Full Carpet Extraction</strong><small>$40</small></span></label>
+            <label class="service-option"><input type="checkbox" data-service="Full Cloth-Seat Extraction" data-price="40" data-group="seats"> <span><strong>Full Cloth-Seat Extraction</strong><small>$40</small></span></label>
+          </fieldset>
+
+
+          <fieldset>
+            <legend>Interior Material</legend>
+            <label for="interiorMaterial">What type of seating does your vehicle have?</label>
+            <select id="interiorMaterial" name="interiorMaterial">
+              <option value="">Choose one</option>
+              <option value="cloth">Cloth</option>
+              <option value="leather">Leather / leather-trimmed</option>
+              <option value="mixed">Mixed materials</option>
+              <option value="unsure">Not sure</option>
+            </select>
+          </fieldset>
+
+          <fieldset>
+            <legend>Finish and Material Care</legend>
+            <label class="service-option"><input type="checkbox" data-service="Interior Finish & UV Protection" data-price="15" data-requires="surface-cleaning"> <span><strong>Interior Finish &amp; UV Protection</strong><small>$15</small></span></label>
+            <p class="fine-print">Applied only to compatible, cleaned surfaces. Steering wheels, pedals, screens, fabric, unsafe controls, and unsuitable materials are excluded.</p>
+            <label class="service-option"><input type="checkbox" data-service="Leather Cleaning & Conditioning" data-price="25"> <span><strong>Leather Cleaning &amp; Conditioning</strong><small>$25</small></span></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Special Conditions</legend>
+            <label class="service-option"><input type="checkbox" data-service="Light Pet-Hair Removal" data-price="10" data-group="pet"> <span><strong>Light Pet-Hair Removal</strong><small>$10</small></span></label>
+            <label class="service-option"><input type="checkbox" data-service="Moderate / Embedded Pet Hair" data-price="20" data-group="pet"> <span><strong>Moderate / Embedded Pet Hair</strong><small>$20</small></span></label>
+            <label class="service-option"><input type="checkbox" data-service="Light Odor Treatment" data-price="15" data-group="odor" data-requires="odor-cleaning"> <span><strong>Light Odor Treatment</strong><small>$15</small></span></label>
+            <label class="service-option assessment-option"><input type="checkbox" data-assessment="Heavy pet hair" data-group="pet"> <span><strong>Heavy Pet Hair</strong><small>Assessment required</small></span></label>
+            <label class="service-option assessment-option"><input type="checkbox" data-assessment="Strong or persistent odor" data-group="odor"> <span><strong>Strong / Persistent Odor</strong><small>Assessment required</small></span></label>
+            <label class="service-option assessment-option"><input type="checkbox" data-assessment="Widespread staining"> <span><strong>Widespread Staining</strong><small>Deep Reset or Recovery review</small></span></label>
+          </fieldset>
+        </form>
+
+        <aside class="builder-summary reveal" id="builderSummary">
+          <p class="eyebrow">Live starting estimate</p>
+          <h2 id="builderTotal">$40 minimum</h2>
+          <p id="builderMessage">Select services to build your custom Reset.</p>
+          <ul id="selectedServices" class="summary-list"></ul>
+          <div id="bundleRecommendation" class="bundle-card hidden" aria-live="polite"></div>
+          <button class="button button-ghost button-wide hidden" id="applyRecommendedPreset" type="button">Choose Recommended Reset</button>
+          <button class="button button-wide" id="continueBooking" type="button">Continue to Booking</button>
+          <button class="button button-ghost button-wide" id="resetBuilder" type="button">Reset Selections</button>
+          <p class="fine-print">Custom mobile services have a $40 minimum. Final pricing is confirmed before work begins.</p>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script src="../assets/js/builder.js" defer></script>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <a class="brand" href="../index.html" aria-label="TopNotch DetailLab home">
+        <img src="../assets/images/C3C99B6F-A040-42DA-A6B3-3EB229F7A068.png" alt="" width="54" height="54">
+        <span><strong>TopNotch</strong><small>DetailLab</small></span>
+      </a>
+      <div>
+        <p>Mobile interior detailing in Indianapolis and nearby Central Indiana communities.</p>
+        <p>© <span id="currentYear"></span> TopNotch DetailLab.</p>
+      </div>
+      <a href="https://www.instagram.com/topnotchdetaillab" target="_blank" rel="noopener noreferrer">@topnotchdetaillab</a>
+    </div>
+  </footer>
+  <div class="mobile-actions" aria-label="Quick actions">
+    <a href="../services/">Services</a>
+    <a href="../build/">Build</a>
+    <a href="../book/">Book</a>
+  </div>
+  <button class="back-to-top" id="backToTop" type="button" aria-label="Back to top">↑</button>
+  <script src="../assets/js/main.js" defer></script>
+</body>
+</html>
