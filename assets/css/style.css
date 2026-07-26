@@ -20,6 +20,7 @@
   --silver: #d8d8dc;
   --gold: #c3b98b;
   --gold-soft: rgba(195, 185, 139, 0.32);
+  --shine-delay: 160ms;
   --shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
   --radius: 22px;
   --radius-small: 15px;
@@ -490,9 +491,10 @@ summary:focus-visible,
 .process-grid h3 {
   font-family:
     "Barlow Condensed",
-    Inter,
-    ui-sans-serif,
-    system-ui,
+    "Arial Narrow",
+    "Roboto Condensed",
+    "Helvetica Neue",
+    Arial,
     sans-serif;
   margin: 0;
   line-height: 0.96;
@@ -845,7 +847,7 @@ summary:focus-visible,
 }
 
 .service-card.featured.visible::after {
-  animation: premiumShine 1.2s ease-out 0.16s 1 both;
+  animation: premiumShine 1.2s ease-out var(--shine-delay) 1 both;
 }
 
 .badges {

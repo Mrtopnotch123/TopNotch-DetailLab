@@ -130,8 +130,8 @@
   /* ---------- Reveal on scroll ---------- */
   function setupReveal() {
     const reveals = Array.from(document.querySelectorAll('.reveal'));
-    const STAGGER_INTERVAL_MS = 70;
-    const STAGGER_STEPS = 5;
+    const STAGGER_MAX_DELAY_MS = 280;
+    const STAGGER_DECAY = 2.15;
     if (!reveals.length) return;
 
     const staggerContainers = new Map();
@@ -159,7 +159,10 @@
         el.closest('.hero-grid, .trust-grid, .service-grid, .why-grid, .about-grid, .process-grid, .tool-grid, .faq-list, .final-cta, .builder-layout, .section, .page-hero') ||
         document.body;
       const index = staggerContainers.get(container) || 0;
-      el.style.setProperty('--reveal-delay', (index % STAGGER_STEPS) * STAGGER_INTERVAL_MS + 'ms');
+      const revealDelay = Math.round(
+        STAGGER_MAX_DELAY_MS * (1 - Math.exp(-index / STAGGER_DECAY))
+      );
+      el.style.setProperty('--reveal-delay', revealDelay + 'ms');
       staggerContainers.set(container, index + 1);
     });
 
