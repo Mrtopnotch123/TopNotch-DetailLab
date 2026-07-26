@@ -1,0 +1,5 @@
+/* Minimal page-specific tweaks for Book */
+.tn-booking-form {
+  max-width: var(--tn-max-width);
+  margin: 0 auto;
+}
