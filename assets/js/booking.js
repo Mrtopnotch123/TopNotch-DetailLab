@@ -26,8 +26,8 @@
 
     /* ---- Set date minimum to local current date ---- */
     if (dateInput) {
-      const today = localDateString();
-      dateInput.min = today;
+      const minDate = localDateString();
+      dateInput.min = minDate;
     }
 
     /* ---- Parse selection from sessionStorage ---- */

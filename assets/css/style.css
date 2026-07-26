@@ -2113,7 +2113,9 @@ details p {
   }
 }
 
-/* ---------- Print ---------- */
+.fine-print-spaced {
+  margin-bottom: 20px !important;
+}
 
 @media print {
   .announcement,

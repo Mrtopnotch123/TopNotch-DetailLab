@@ -500,7 +500,7 @@
 
         if (Array.isArray(draft.checked)) {
           draft.checked.forEach(function (serviceName) {
-            var inp = Array.from(form.querySelectorAll('[data-service]')).find(function (el) {
+            const inp = Array.from(form.querySelectorAll('[data-service]')).find(function (el) {
               return el.dataset.service === serviceName;
             });
             if (inp) inp.checked = true;
