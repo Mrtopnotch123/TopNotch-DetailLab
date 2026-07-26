@@ -42,7 +42,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  overflow-x: clip;
+  overflow-x: hidden;
   color: var(--text);
   background:
     radial-gradient(circle at 14% 4%, rgba(217, 20, 43, 0.14), transparent 30rem),
@@ -375,6 +375,7 @@ summary:focus-visible,
   text-align: center;
   text-decoration: none;
   text-transform: uppercase;
+  white-space: normal;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
@@ -454,6 +455,7 @@ summary:focus-visible,
   line-height: 0.94;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+  text-wrap: balance;
 }
 
 .section-heading {
@@ -464,7 +466,7 @@ summary:focus-visible,
 .section-heading h2,
 .tool-copy h2,
 .split h2 {
-  font-size: clamp(2.65rem, 8vw, 4.9rem);
+  font-size: clamp(2.2rem, 8vw, 4.9rem);
 }
 
 .section-heading > p:last-child,
@@ -493,7 +495,7 @@ summary:focus-visible,
 }
 
 .page-hero h1 {
-  font-size: clamp(3.25rem, 11vw, 6.4rem);
+  font-size: clamp(2.75rem, 11vw, 6.4rem);
   margin-bottom: 16px;
 }
 
@@ -595,6 +597,7 @@ summary:focus-visible,
 
 .hero-visual {
   min-width: 0;
+  overflow: clip;
 }
 
 .logo-stage {
@@ -602,6 +605,7 @@ summary:focus-visible,
   display: grid;
   min-height: 276px;
   place-items: center;
+  overflow: clip;
 }
 
 .logo-stage::before {
@@ -1103,8 +1107,20 @@ textarea {
   filter: drop-shadow(0 20px 42px rgba(0, 0, 0, 0.7));
 }
 
+.coming-soon > div {
+  min-width: 0;
+}
+
 .coming-soon h3 {
   font-size: clamp(2rem, 8vw, 3.4rem);
+  overflow-wrap: anywhere;
+}
+
+.coming-soon p,
+.coming-soon .hero-actions,
+.coming-soon .button {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .coming-soon p,
@@ -2054,7 +2070,7 @@ details p {
   }
 
   .steps-five {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .process-grid {
@@ -2062,7 +2078,7 @@ details p {
   }
 
   .process-grid.steps-five {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .mobile-actions {
@@ -2076,6 +2092,14 @@ details p {
 
   .site-footer {
     padding-bottom: 36px;
+  }
+}
+
+
+@media (min-width: 1280px) {
+  .steps-five,
+  .process-grid.steps-five {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -2130,7 +2154,27 @@ details p {
   }
 }
 
+
 @media (max-width: 580px) {
+  .page-hero h1,
+  .section-heading h2,
+  .tool-copy h2,
+  .hero-grid h2,
+  .split h2,
+  .final-cta h2 {
+    overflow-wrap: anywhere;
+  }
+
+  .ring-one {
+    width: min(280px, calc(100% - 24px));
+    height: min(280px, calc(100% - 24px));
+  }
+
+  .ring-two {
+    width: min(212px, calc(100% - 72px));
+    height: min(212px, calc(100% - 72px));
+  }
+
   .announcement {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: start;
