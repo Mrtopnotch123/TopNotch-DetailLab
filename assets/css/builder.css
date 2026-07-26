@@ -1,0 +1,605 @@
+/* ===================================
+   BUILDER PAGE CSS
+   =================================== */
+
+.builder-interface {
+    background-color: var(--color-bg-dark);
+    padding: var(--spacing-4xl) var(--spacing-lg);
+}
+
+.builder-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: var(--spacing-3xl);
+}
+
+.builder-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xl);
+}
+
+/* ===================================
+   SERVICE SECTIONS
+   =================================== */
+
+.service-section {
+    background-color: var(--color-bg-charcoal);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 12px;
+    padding: var(--spacing-2xl);
+    transition: all var(--transition-base);
+}
+
+.service-section:hover {
+    border-color: rgba(220, 38, 38, 0.3);
+}
+
+.section-title {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--color-white);
+    margin-bottom: var(--spacing-lg);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.service-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+/* ===================================
+   SERVICE CHECKBOX
+   =================================== */
+
+.service-checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: rgba(220, 38, 38, 0.02);
+    border: 1px solid rgba(220, 38, 38, 0.1);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    position: relative;
+}
+
+.service-checkbox:hover {
+    background-color: rgba(220, 38, 38, 0.05);
+    border-color: rgba(220, 38, 38, 0.2);
+}
+
+.service-checkbox input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    cursor: pointer;
+}
+
+.checkbox-custom {
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(220, 38, 38, 0.4);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-base);
+}
+
+.service-checkbox input:checked ~ .checkbox-custom {
+    background-color: var(--color-red);
+    border-color: var(--color-red);
+}
+
+.service-checkbox input:checked ~ .checkbox-custom::after {
+    content: '✓';
+    color: var(--color-white);
+    font-weight: 900;
+    font-size: 0.85rem;
+}
+
+.service-label {
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-gray-light);
+}
+
+.service-price {
+    font-weight: 900;
+    color: var(--color-red);
+    white-space: nowrap;
+    min-width: 60px;
+    text-align: right;
+}
+
+.service-badge {
+    display: inline-block;
+    background-color: rgba(212, 175, 55, 0.2);
+    color: var(--color-gold);
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.service-checkbox.assessment-required:hover {
+    background-color: rgba(212, 175, 55, 0.08);
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+/* ===================================
+   BUILDER ACTIONS
+   =================================== */
+
+.builder-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid rgba(220, 38, 38, 0.1);
+}
+
+/* ===================================
+   BUILDER SUMMARY SIDEBAR
+   =================================== */
+
+.builder-summary {
+    position: relative;
+}
+
+.summary-sticky {
+    position: sticky;
+    top: 100px;
+    background-color: var(--color-bg-charcoal);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 12px;
+    padding: var(--spacing-2xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.summary-sticky h3 {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--color-white);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ===================================
+   MINIMUM NOTICE
+   =================================== */
+
+.minimum-notice {
+    background-color: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 6px;
+    padding: var(--spacing-md);
+    font-size: 0.85rem;
+    color: var(--color-gray-light);
+}
+
+.minimum-notice strong {
+    display: block;
+    color: var(--color-red);
+    margin-bottom: var(--spacing-xs);
+}
+
+.minimum-notice p {
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* ===================================
+   SELECTED ITEMS
+   =================================== */
+
+.summary-items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.selected-services {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.selected-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid rgba(220, 38, 38, 0.1);
+    font-size: 0.9rem;
+}
+
+.selected-item:last-child {
+    border-bottom: none;
+}
+
+.item-name {
+    color: var(--color-gray-light);
+    flex: 1;
+}
+
+.item-price {
+    color: var(--color-red);
+    font-weight: 700;
+}
+
+.empty-state {
+    font-size: 0.9rem;
+    color: var(--color-gray-silver);
+    font-style: italic;
+    padding: var(--spacing-md) 0;
+    text-align: center;
+}
+
+/* ===================================
+   SUMMARY WARNINGS
+   =================================== */
+
+.summary-warnings {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.conflict-warning {
+    background-color: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 6px;
+    padding: var(--spacing-sm);
+    font-size: 0.8rem;
+    color: var(--color-gold);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===================================
+   PRESET RECOMMENDATION
+   =================================== */
+
+.preset-recommendation {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(220, 38, 38, 0.05) 100%);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 8px;
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.preset-recommendation h4 {
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: var(--color-red);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.preset-recommendation p {
+    font-size: 0.85rem;
+    color: var(--color-gray-light);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.preset-recommendation .btn {
+    width: 100%;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--color-red);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    transition: color var(--transition-base);
+}
+
+.btn-link:hover {
+    color: var(--color-red-bright);
+}
+
+/* ===================================
+   ASSESSMENT STATE
+   =================================== */
+
+.assessment-state {
+    background-color: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.assessment-badge {
+    display: inline-block;
+    background-color: rgba(212, 175, 55, 0.3);
+    color: var(--color-gold);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: fit-content;
+}
+
+.assessment-state p {
+    font-size: 0.85rem;
+    color: var(--color-gold);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ===================================
+   PRICING DISPLAY
+   =================================== */
+
+.summary-pricing {
+    padding: var(--spacing-lg) 0;
+    border-top: 1px solid rgba(220, 38, 38, 0.2);
+    border-bottom: 1px solid rgba(220, 38, 38, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.pricing-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    color: var(--color-gray-light);
+}
+
+.pricing-row span:last-child {
+    font-weight: 700;
+}
+
+.pricing-row.total {
+    font-size: 1.1rem;
+    color: var(--color-white);
+}
+
+.pricing-row.total span:last-child {
+    color: var(--color-red);
+    font-size: 1.3rem;
+}
+
+/* ===================================
+   BUILDER INFO SECTION
+   =================================== */
+
+.builder-info {
+    background: linear-gradient(135deg, var(--color-bg-charcoal) 0%, rgba(25, 25, 25, 0.5) 100%);
+    padding: var(--spacing-4xl) var(--spacing-lg);
+    border-top: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.info-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.info-container > h2 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    color: var(--color-white);
+    margin-bottom: var(--spacing-3xl);
+    text-align: center;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-2xl);
+}
+
+.info-card {
+    padding: var(--spacing-2xl);
+    background-color: var(--color-bg-dark);
+    border-radius: 8px;
+    border-left: 3px solid var(--color-red);
+    transition: all var(--transition-base);
+}
+
+.info-card:hover {
+    transform: translateX(8px);
+}
+
+.info-card h3 {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--color-white);
+    margin-bottom: var(--spacing-md);
+}
+
+.info-card p {
+    font-size: 0.95rem;
+    color: var(--color-gray-silver);
+    line-height: 1.6;
+}
+
+/* ===================================
+   RESPONSIVE ADJUSTMENTS
+   =================================== */
+
+@media (max-width: 1024px) {
+    .builder-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-sticky {
+        position: static;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .builder-interface {
+        padding: var(--spacing-2xl) var(--spacing-lg);
+    }
+
+    .service-section {
+        padding: var(--spacing-lg);
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+    }
+
+    .service-checkbox {
+        padding: var(--spacing-sm);
+    }
+
+    .service-label {
+        font-size: 0.9rem;
+    }
+
+    .summary-sticky {
+        padding: var(--spacing-lg);
+    }
+
+    .summary-sticky h3 {
+        font-size: 1rem;
+    }
+
+    .info-container > h2 {
+        font-size: 1.8rem;
+    }
+
+    .info-card h3 {
+        font-size: 1rem;
+    }
+
+    .info-card p {
+        font-size: 0.9rem;
+    }
+
+    .builder-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .builder-interface {
+        padding: var(--spacing-lg);
+    }
+
+    .builder-wrapper {
+        gap: var(--spacing-lg);
+    }
+
+    .service-section {
+        padding: var(--spacing-md);
+    }
+
+    .section-title {
+        font-size: 1rem;
+    }
+
+    .service-checkbox {
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm);
+    }
+
+    .checkbox-custom {
+        width: 20px;
+        height: 20px;
+        min-width: 20px;
+    }
+
+    .service-label {
+        font-size: 0.85rem;
+    }
+
+    .service-price {
+        font-size: 0.85rem;
+        min-width: 50px;
+    }
+
+    .summary-sticky {
+        padding: var(--spacing-md);
+        gap: var(--spacing-md);
+    }
+
+    .summary-sticky h3 {
+        font-size: 0.95rem;
+    }
+
+    .selected-item {
+        font-size: 0.85rem;
+    }
+
+    .item-name {
+        font-size: 0.8rem;
+    }
+
+    .pricing-row {
+        font-size: 0.9rem;
+    }
+
+    .pricing-row.total {
+        font-size: 1rem;
+    }
+
+    .pricing-row.total span:last-child {
+        font-size: 1.1rem;
+    }
+
+    .preset-recommendation {
+        padding: var(--spacing-md);
+    }
+
+    .preset-recommendation h4 {
+        font-size: 0.85rem;
+    }
+
+    .preset-recommendation p {
+        font-size: 0.8rem;
+    }
+}
