@@ -1,13 +1,27 @@
-@import url("layout.css");
-@import url("components.css");
-@import url("animations.css");
-@import url("pages-home.css");
-@import url("pages-services.css");
-@import url("pages-build.css");
-@import url("pages-book.css");
-@import url("pages-results.css");
-@import url("pages-faq.css");
-@import url("pages-about.css");
+/* ============================================================
+   TopNotch Interior Reset — Modular Root Stylesheet
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. CSS Imports (Absolute paths so Vercel loads them correctly)
+   ------------------------------------------------------------ */
+
+@import url("/assets/css/layout.css");
+@import url("/assets/css/components.css");
+@import url("/assets/css/animations.css");
+
+@import url("/assets/css/pages-home.css");
+@import url("/assets/css/pages-services.css");
+@import url("/assets/css/pages-build.css");
+@import url("/assets/css/pages-book.css");
+@import url("/assets/css/pages-results.css");
+@import url("/assets/css/pages-faq.css");
+@import url("/assets/css/pages-about.css");
+
+
+/* ------------------------------------------------------------
+   2. Global Variables
+   ------------------------------------------------------------ */
 
 :root {
   --tn-black: #000000;
@@ -17,13 +31,16 @@
   --tn-light-gray: #e5e5e5;
   --tn-silver: #cfcfcf;
   --tn-white: #ffffff;
+
   --tn-red: #c40000;
   --tn-red-hover: #e00000;
+
   --tn-font-main: "Inter", "Segoe UI", Arial, sans-serif;
   --tn-font-size-base: 16px;
   --tn-font-size-lg: 20px;
   --tn-font-size-xl: 32px;
   --tn-font-size-xxl: 48px;
+
   --tn-space-xxs: 4px;
   --tn-space-xs: 8px;
   --tn-space-sm: 16px;
@@ -31,16 +48,25 @@
   --tn-space-lg: 40px;
   --tn-space-xl: 64px;
   --tn-space-xxl: 96px;
+
   --tn-radius-sm: 4px;
   --tn-radius-md: 8px;
   --tn-radius-lg: 12px;
+
   --tn-shadow-soft: 0 4px 12px rgba(0,0,0,0.25);
   --tn-shadow-medium: 0 6px 20px rgba(0,0,0,0.35);
+
   --tn-anim-fast: 0.15s;
   --tn-anim-medium: 0.35s;
   --tn-anim-slow: 0.65s;
+
   --tn-max-width: 1400px;
 }
+
+
+/* ------------------------------------------------------------
+   3. Global Reset
+   ------------------------------------------------------------ */
 
 *,
 *::before,
@@ -50,7 +76,9 @@
   box-sizing: border-box;
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   font-family: var(--tn-font-main);
@@ -60,6 +88,11 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
 }
+
+
+/* ------------------------------------------------------------
+   4. Layout Structure
+   ------------------------------------------------------------ */
 
 .tn-page {
   width: 100%;
@@ -74,6 +107,23 @@ body {
   padding: var(--tn-space-xl) var(--tn-space-md);
 }
 
+
+/* ------------------------------------------------------------
+   5. Utility Classes
+   ------------------------------------------------------------ */
+
+.tn-text-center { text-align: center; }
+.tn-text-left { text-align: left; }
+.tn-text-right { text-align: right; }
+
+.tn-flex { display: flex; }
+.tn-flex-center { display: flex; justify-content: center; align-items: center; }
+.tn-flex-between { display: flex; justify-content: space-between; }
+
+.tn-grid { display: grid; }
+
+.tn-hidden { display: none !important; }
+
 .tn-section {
   padding: var(--tn-space-xxl) var(--tn-space-md);
 }
@@ -83,7 +133,9 @@ body {
   padding: var(--tn-space-xxl) var(--tn-space-md);
 }
 
-.tn-section-header { margin-bottom: var(--tn-space-lg); }
+.tn-section-header {
+  margin-bottom: var(--tn-space-lg);
+}
 
 .tn-section-title {
   font-size: var(--tn-font-size-xl);
@@ -95,6 +147,11 @@ body {
   font-size: var(--tn-font-size-lg);
   color: var(--tn-silver);
 }
+
+
+/* ------------------------------------------------------------
+   6. Buttons
+   ------------------------------------------------------------ */
 
 .tn-btn {
   display: inline-flex;
@@ -131,6 +188,11 @@ body {
   font-size: var(--tn-font-size-lg);
 }
 
+
+/* ------------------------------------------------------------
+   7. Scroll Progress Bar
+   ------------------------------------------------------------ */
+
 #scrollProgress {
   position: fixed;
   top: 0;
@@ -141,6 +203,11 @@ body {
   z-index: 9999;
   transition: width var(--tn-anim-fast) linear;
 }
+
+
+/* ------------------------------------------------------------
+   8. Back-to-top Button
+   ------------------------------------------------------------ */
 
 #backToTop {
   position: fixed;
@@ -160,7 +227,14 @@ body {
   transition: opacity var(--tn-anim-medium), transform var(--tn-anim-fast);
 }
 
-#backToTop:hover { transform: scale(1.05); }
+#backToTop:hover {
+  transform: scale(1.05);
+}
+
+
+/* ------------------------------------------------------------
+   9. Reveal-on-scroll
+   ------------------------------------------------------------ */
 
 [data-reveal] {
   opacity: 0;
@@ -174,12 +248,30 @@ body {
   transform: translateY(0);
 }
 
+
+/* ------------------------------------------------------------
+   10. Sticky Header
+   ------------------------------------------------------------ */
+
 .tn-header-sticky {
   position: sticky;
   top: 0;
   z-index: 999;
   background: var(--tn-black);
   box-shadow: var(--tn-shadow-soft);
+}
+
+
+/* ------------------------------------------------------------
+   11. Logo Animation Hooks
+   ------------------------------------------------------------ */
+
+[data-animate="logo-float"] {
+  will-change: transform;
+}
+
+[data-animate="logo-orbit"] {
+  position: relative;
 }
 
 .tn-logo-ring {
@@ -203,6 +295,11 @@ body {
   top: -4px;
   left: -4px;
 }
+
+
+/* ------------------------------------------------------------
+   12. Reduced Motion
+   ------------------------------------------------------------ */
 
 @media (prefers-reduced-motion: reduce) {
   * {
