@@ -6,423 +6,120 @@
   <meta name="theme-color" content="#090909">
   <meta name="description" content="Build Your Own Reset — select exactly the interior detailing services your vehicle needs, see live pricing, and book with TopNotch DetailLab.">
   <meta name="robots" content="index,follow">
-
   <meta property="og:type" content="website">
   <meta property="og:title" content="Build Your Own Reset | TopNotch DetailLab">
   <meta property="og:description" content="Choose exactly the services your interior needs. Live pricing, dependency rules, and a direct booking path.">
   <meta property="og:image" content="https://topnotchdetaillab.com/C3C99B6F-A040-42DA-A6B3-3EB229F7A068.PNG">
   <meta property="og:url" content="https://topnotchdetaillab.com/build/">
   <meta name="twitter:card" content="summary_large_image">
-
   <link rel="canonical" href="https://topnotchdetaillab.com/build/">
   <link rel="icon" href="../C3C99B6F-A040-42DA-A6B3-3EB229F7A068.PNG">
   <link rel="apple-touch-icon" href="../C3C99B6F-A040-42DA-A6B3-3EB229F7A068.PNG">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="../assets/css/style.css">
-
   <title>Build Your Own Reset | TopNotch DetailLab</title>
 </head>
-
 <body>
-  <div class="scroll-progress" aria-hidden="true">
-    <span id="scrollProgress"></span>
-  </div>
-
+  <div class="scroll-progress" aria-hidden="true"><span id="scrollProgress"></span></div>
   <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
-
   <a class="skip-link" href="#main">Skip to main content</a>
-
-  <div class="announcement">
-    <p>Now accepting mobile interior-detailing appointments in Indianapolis and surrounding areas.</p>
-    <a href="../book/">Book now</a>
-  </div>
-
-  <header class="site-header" id="siteHeader">
-    <div class="container nav-wrap">
-      <a class="brand" href="../" aria-label="TopNotch DetailLab home">
-        <img src="../C3C99B6F-A040-42DA-A6B3-3EB229F7A068.PNG" alt="TopNotch DetailLab logo" width="64" height="64">
-        <span>
-          <strong>TopNotch</strong>
-          <small>DetailLab</small>
-        </span>
-      </a>
-
-      <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="siteNav">
-        <span class="sr-only">Open navigation</span>
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-
-      <nav class="site-nav" id="siteNav" aria-label="Primary navigation">
-        <a href="../">Home</a>
-        <a href="../services/">Services</a>
-        <a href="../build/" aria-current="page">Build Your Own</a>
-        <a href="../results/">Results</a>
-        <a href="../faq/">FAQ</a>
-        <a href="../about/">About</a>
-        <a class="button button-small" href="../book/">Book Now</a>
-      </nav>
-    </div>
-  </header>
+  <div class="announcement"><p>Now accepting mobile interior-detailing appointments in Indianapolis and surrounding areas.</p><a href="../book/">Book online</a></div>
+  <header class="site-header" id="siteHeader"><div class="container nav-wrap"><a class="brand" href="../" aria-label="TopNotch DetailLab home"><img src="../C3C99B6F-A040-42DA-A6B3-3EB229F7A068.PNG" alt="TopNotch DetailLab logo" width="64" height="64"><span><strong>TopNotch</strong><small>DetailLab</small></span></a><button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="siteNav"><span class="sr-only">Open navigation</span><span></span><span></span><span></span></button><nav class="site-nav" id="siteNav" aria-label="Primary navigation"><a href="../">Home</a><a href="../services/">Services</a><a href="../build/" aria-current="page">Build Your Own</a><a href="../results/">Results</a><a href="../faq/">FAQ</a><a href="../about/">About</a><a class="button button-small" href="../book/">Book Now</a></nav></div></header>
 
   <main id="main">
     <section class="page-hero">
       <div class="container">
         <p class="eyebrow">Custom service</p>
         <h1>Build Your Own Reset</h1>
-        <p>Select exactly the services your interior needs. See the live price, follow the dependency rules, and continue to booking when you're ready.</p>
+        <p>Select exactly the services your interior needs. See the starting total clearly, follow the dependency rules, and continue to booking when you are ready.</p>
         <p class="fine-print">A $40 mobile service minimum applies. Assessment-required conditions stop fixed-price calculation and route to a Recovery Assessment.</p>
       </div>
     </section>
 
     <section class="section" id="builder">
       <div class="container">
+        <div class="selection-banner reveal" id="selectionBanner" hidden>
+          <p class="selection-banner-label">Selected Service</p>
+          <div><h2 id="selectionBannerTitle"></h2><p class="selection-banner-meta" id="selectionBannerMeta"></p></div>
+          <div class="selection-banner-actions"><a class="button" id="selectionContinue" href="../book/">Continue Booking</a><a class="button button-ghost" id="selectionChange" href="../build/">Change</a><button class="button button-ghost" id="selectionClear" type="button">Clear</button></div>
+        </div>
+
         <form id="builderForm" novalidate>
           <div class="builder-layout">
-
-            <!-- Left: Service controls -->
             <div class="builder-controls">
-
-              <!-- Material selector -->
-              <div class="builder-panel">
+              <div class="builder-panel reveal">
                 <h3>Interior material</h3>
                 <div class="material-selector">
-                  <label for="interiorMaterial">Select your interior material</label>
-                  <select id="interiorMaterial">
-                    <option value="">Select one (required for leather services)</option>
-                    <option value="Cloth">Cloth</option>
-                    <option value="Leather / leather-trimmed">Leather / leather-trimmed</option>
-                    <option value="Mixed materials">Mixed materials</option>
-                    <option value="Not sure">Not sure</option>
-                  </select>
+                  <label for="interiorMaterial">Select your interior material <span class="label-note">Required for leather cleaning and conditioning.</span></label>
+                  <select id="interiorMaterial"><option value="">Select one (required for leather services)</option><option value="Cloth">Cloth</option><option value="Leather / leather-trimmed">Leather / leather-trimmed</option><option value="Mixed materials">Mixed materials</option><option value="Not sure">Not sure</option></select>
                 </div>
               </div>
 
-              <!-- Core Cleaning -->
-              <div class="builder-panel">
-                <h3>Core cleaning</h3>
-                <div class="builder-service-list">
+              <div class="builder-panel reveal"><h3>Core cleaning</h3><div class="builder-service-list">
+                <div class="builder-item"><input type="checkbox" id="svc-vacuum" name="services" data-service="Interior Vacuum" data-price="20"><label for="svc-vacuum"><span class="builder-item-copy"><strong>Interior Vacuum</strong><small>Seats, carpets, and floor mats receive a full vacuum pass.</small></span><span class="builder-item-price">$20</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-light-wipe" name="services" data-service="Light Surface Wipe-Down" data-price="15" data-group="surface-cleaning"><label for="svc-light-wipe"><span class="builder-item-copy"><strong>Light Surface Wipe-Down</strong><small>For maintenance interiors needing a quick freshen-up on major touchpoints.</small></span><span class="builder-item-price">$15</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-thorough-surface" name="services" data-service="Thorough Interior-Surface Cleaning" data-price="35" data-group="surface-cleaning"><label for="svc-thorough-surface"><span class="builder-item-copy"><strong>Thorough Interior-Surface Cleaning</strong><small>A more complete interior-surface clean for normal daily buildup.</small></span><span class="builder-item-price">$35</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-glass" name="services" data-service="Interior Glass" data-price="8"><label for="svc-glass"><span class="builder-item-copy"><strong>Interior Glass Cleaning</strong><small>Interior windows and mirrors receive a clean finishing pass.</small></span><span class="builder-item-price">$8</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-cargo" name="services" data-service="Cargo-Area Cleaning" data-price="12"><label for="svc-cargo"><span class="builder-item-copy"><strong>Cargo-Area Cleaning</strong><small>Vacuuming and wipe-down for the rear cargo space when needed.</small></span><span class="builder-item-price">$12</span></label></div>
+              </div></div>
 
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-vacuum" name="services"
-                      data-service="Interior Vacuum"
-                      data-price="20">
-                    <label for="svc-vacuum">
-                      <span>Interior Vacuum</span>
-                      <span class="builder-item-price">$20</span>
-                    </label>
-                  </div>
+              <div class="builder-panel reveal"><h3>Detailed cleaning</h3><div class="builder-service-list">
+                <div class="builder-item"><input type="checkbox" id="svc-airblowout" name="services" data-service="Air Blowout, Vents &amp; Crevices" data-price="20"><label for="svc-airblowout"><span class="builder-item-copy"><strong>Air Blowout, Vents &amp; Crevices</strong><small>Compressed-air detail work for tighter interior spaces.</small></span><span class="builder-item-price">$20</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-doorjamb" name="services" data-service="Door-Jamb Cleaning" data-price="8"><label for="svc-doorjamb"><span class="builder-item-copy"><strong>Door-Jamb Cleaning</strong><small>Targets the areas most often missed in routine cleaning.</small></span><span class="builder-item-price">$8</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-extract-one" name="services" data-service="One Localized Extraction Area" data-price="15" data-group="localized-extraction"><label for="svc-extract-one"><span class="builder-item-copy"><strong>One Localized Extraction Area</strong><small>Spot treatment for one affected carpet or seat section.</small></span><span class="builder-item-price">$15</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-extract-two" name="services" data-service="Two Localized Extraction Areas" data-price="25" data-group="localized-extraction"><label for="svc-extract-two"><span class="builder-item-copy"><strong>Two Localized Extraction Areas</strong><small>Spot treatment for multiple interior problem areas.</small></span><span class="builder-item-price">$25</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-carpet-extract" name="services" data-service="Full Carpet Extraction" data-price="40"><label for="svc-carpet-extract"><span class="builder-item-copy"><strong>Full Carpet Extraction</strong><small>Full carpet extraction for deeper soil or staining concerns.</small></span><span class="builder-item-price">$40</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-seat-extract" name="services" data-service="Full Cloth-Seat Extraction" data-price="40"><label for="svc-seat-extract"><span class="builder-item-copy"><strong>Full Cloth-Seat Extraction</strong><small>Deep cloth-seat extraction when routine cleaning is not enough.</small></span><span class="builder-item-price">$40</span></label></div>
+              </div></div>
 
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-light-wipe" name="services"
-                      data-service="Light Surface Wipe-Down"
-                      data-price="15"
-                      data-group="surface-cleaning">
-                    <label for="svc-light-wipe">
-                      <span>Light Surface Wipe-Down</span>
-                      <span class="builder-item-price">$15</span>
-                    </label>
-                  </div>
+              <div class="builder-panel reveal"><h3>Finish and material care</h3><div class="builder-service-list">
+                <div class="builder-item"><input type="checkbox" id="svc-finish-uv" name="services" data-service="Interior Finish &amp; UV Protection" data-price="15" data-requires="Thorough Interior-Surface Cleaning"><label for="svc-finish-uv"><span class="builder-item-copy"><strong>Interior Finish &amp; UV Protection</strong><small>Requires thorough interior-surface cleaning first.</small></span><span class="builder-item-price">$15</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-leather" name="services" data-service="Leather Cleaning &amp; Conditioning" data-price="25"><label for="svc-leather"><span class="builder-item-copy"><strong>Leather Cleaning &amp; Conditioning</strong><small>Available for leather or mixed-material interiors only.</small></span><span class="builder-item-price">$25</span></label></div>
+              </div><p class="fine-print">Leather Cleaning &amp; Conditioning requires a leather or mixed-material interior selection above. Interior Finish &amp; UV Protection requires Thorough Interior-Surface Cleaning.</p></div>
 
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-thorough-surface" name="services"
-                      data-service="Thorough Interior-Surface Cleaning"
-                      data-price="35"
-                      data-group="surface-cleaning">
-                    <label for="svc-thorough-surface">
-                      <span>Thorough Interior-Surface Cleaning</span>
-                      <span class="builder-item-price">$35</span>
-                    </label>
-                  </div>
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-glass" name="services"
-                      data-service="Interior Glass"
-                      data-price="8">
-                    <label for="svc-glass">
-                      <span>Interior Glass Cleaning</span>
-                      <span class="builder-item-price">$8</span>
-                    </label>
-                  </div>
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-cargo" name="services"
-                      data-service="Cargo-Area Cleaning"
-                      data-price="12">
-                    <label for="svc-cargo">
-                      <span>Cargo-Area Cleaning</span>
-                      <span class="builder-item-price">$12</span>
-                    </label>
-                  </div>
-
-                </div>
-              </div>
-
-              <!-- Detailed Cleaning -->
-              <div class="builder-panel">
-                <h3>Detailed cleaning</h3>
-                <div class="builder-service-list">
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-airblowout" name="services"
-                      data-service="Air Blowout, Vents &amp; Crevices"
-                      data-price="20">
-                    <label for="svc-airblowout">
-                      <span>Air Blowout, Vents &amp; Crevices</span>
-                      <span class="builder-item-price">$20</span>
-                    </label>
-                  </div>
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-doorjamb" name="services"
-                      data-service="Door-Jamb Cleaning"
-                      data-price="8">
-                    <label for="svc-doorjamb">
-                      <span>Door-Jamb Cleaning</span>
-                      <span class="builder-item-price">$8</span>
-                    </label>
-                  </div>
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-extract-one" name="services"
-                      data-service="One Localized Extraction Area"
-                      data-price="15"
-                      data-group="localized-extraction">
-                    <label for="svc-extract-one">
-                      <span>One Localized Extraction Area</span>
-                      <span class="builder-item-price">$15</span>
-                    </label>
-                  </div>
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-extract-two" name="services"
-                      data-service="Two Localized Extraction Areas"
-                      data-price="25"
-                      data-group="localized-extraction">
-                    <label for="svc-extract-two">
-                      <span>Two Localized Extraction Areas</span>
-                      <span class="builder-item-price">$25</span>
-                    </label>
-                  </div>
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-carpet-extract" name="services"
-                      data-service="Full Carpet Extraction"
-                      data-price="40">
-                    <label for="svc-carpet-extract">
-                      <span>Full Carpet Extraction</span>
-                      <span class="builder-item-price">$40</span>
-                    </label>
-                  </div>
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-seat-extract" name="services"
-                      data-service="Full Cloth-Seat Extraction"
-                      data-price="40">
-                    <label for="svc-seat-extract">
-                      <span>Full Cloth-Seat Extraction</span>
-                      <span class="builder-item-price">$40</span>
-                    </label>
-                  </div>
-
-                </div>
-              </div>
-
-              <!-- Finish and Material Care -->
-              <div class="builder-panel">
-                <h3>Finish and material care</h3>
-                <div class="builder-service-list">
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-finish-uv" name="services"
-                      data-service="Interior Finish &amp; UV Protection"
-                      data-price="15"
-                      data-requires="Thorough Interior-Surface Cleaning">
-                    <label for="svc-finish-uv">
-                      <span>Interior Finish &amp; UV Protection</span>
-                      <span class="builder-item-price">$15</span>
-                    </label>
-                  </div>
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-leather" name="services"
-                      data-service="Leather Cleaning &amp; Conditioning"
-                      data-price="25">
-                    <label for="svc-leather">
-                      <span>Leather Cleaning &amp; Conditioning</span>
-                      <span class="builder-item-price">$25</span>
-                    </label>
-                  </div>
-
-                </div>
-                <p class="fine-print" style="margin-top:12px;">Leather Cleaning &amp; Conditioning requires a leather or mixed-material interior selection above.</p>
-                <p class="fine-print">Interior Finish &amp; UV Protection requires Thorough Interior-Surface Cleaning to be selected.</p>
-              </div>
-
-              <!-- Special Conditions -->
-              <div class="builder-panel">
-                <h3>Special conditions</h3>
-                <p class="fine-print" style="margin-bottom:14px;">Assessment-required conditions will stop fixed-price calculation and route your request to a Recovery Assessment.</p>
-                <div class="builder-service-list">
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-pet-light" name="services"
-                      data-service="Light Pet-Hair Removal"
-                      data-price="10"
-                      data-group="pet-hair">
-                    <label for="svc-pet-light">
-                      <span>Light Pet-Hair Removal</span>
-                      <span class="builder-item-price">$10</span>
-                    </label>
-                  </div>
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-pet-moderate" name="services"
-                      data-service="Moderate / Embedded Pet Hair"
-                      data-price="20"
-                      data-group="pet-hair">
-                    <label for="svc-pet-moderate">
-                      <span>Moderate / Embedded Pet Hair</span>
-                      <span class="builder-item-price">$20</span>
-                    </label>
-                  </div>
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-pet-heavy" name="services"
-                      data-service="Heavy pet hair"
-                      data-assessment="true"
-                      data-group="pet-hair">
-                    <label for="svc-pet-heavy">
-                      <span>Heavy / Extensive Pet Hair</span>
-                      <span class="builder-item-assessment">Assessment required</span>
-                    </label>
-                  </div>
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-odor-light" name="services"
-                      data-service="Light Odor Treatment"
-                      data-price="15"
-                      data-group="odor">
-                    <label for="svc-odor-light">
-                      <span>Light Odor Treatment</span>
-                      <span class="builder-item-price">$15</span>
-                    </label>
-                  </div>
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-odor-strong" name="services"
-                      data-service="Strong or persistent odor"
-                      data-assessment="true"
-                      data-group="odor">
-                    <label for="svc-odor-strong">
-                      <span>Strong / Persistent Odor</span>
-                      <span class="builder-item-assessment">Assessment required</span>
-                    </label>
-                  </div>
-
-                  <div class="builder-item">
-                    <input type="checkbox" id="svc-stain" name="services"
-                      data-service="Widespread staining"
-                      data-assessment="true">
-                    <label for="svc-stain">
-                      <span>Widespread Staining</span>
-                      <span class="builder-item-assessment">Assessment required</span>
-                    </label>
-                  </div>
-
-                </div>
-              </div>
-
+              <div class="builder-panel reveal"><h3>Special conditions</h3><p class="fine-print">Assessment-required conditions stop fixed-price calculation and route your request to a Recovery Assessment.</p><div class="builder-service-list">
+                <div class="builder-item"><input type="checkbox" id="svc-pet-light" name="services" data-service="Light Pet-Hair Removal" data-price="10" data-group="pet-hair"><label for="svc-pet-light"><span class="builder-item-copy"><strong>Light Pet-Hair Removal</strong><small>For manageable interior pet hair that adds labor but not a full assessment.</small></span><span class="builder-item-price">$10</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-pet-moderate" name="services" data-service="Moderate / Embedded Pet Hair" data-price="20" data-group="pet-hair"><label for="svc-pet-moderate"><span class="builder-item-copy"><strong>Moderate / Embedded Pet Hair</strong><small>For more involved pet-hair removal without jumping straight to Recovery.</small></span><span class="builder-item-price">$20</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-pet-heavy" name="services" data-service="Heavy / Extensive Pet Hair" data-assessment="true" data-group="pet-hair"><label for="svc-pet-heavy"><span class="builder-item-copy"><strong>Heavy / Extensive Pet Hair</strong><small>Extensive embedded hair triggers a Recovery-style assessment flow.</small></span><span class="builder-item-assessment">Assessment Required</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-odor-light" name="services" data-service="Light Odor Treatment" data-price="15" data-group="odor"><label for="svc-odor-light"><span class="builder-item-copy"><strong>Light Odor Treatment</strong><small>For lighter interior odor concerns with manageable labor.</small></span><span class="builder-item-price">$15</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-odor-strong" name="services" data-service="Strong / Persistent Odor" data-assessment="true" data-group="odor"><label for="svc-odor-strong"><span class="builder-item-copy"><strong>Strong / Persistent Odor</strong><small>Persistent odors require photo review before pricing and confirmation.</small></span><span class="builder-item-assessment">Assessment Required</span></label></div>
+                <div class="builder-item"><input type="checkbox" id="svc-stain" name="services" data-service="Widespread Staining" data-assessment="true"><label for="svc-stain"><span class="builder-item-copy"><strong>Widespread Staining</strong><small>Large-scale staining can require condition-based pricing instead of a fixed total.</small></span><span class="builder-item-assessment">Assessment Required</span></label></div>
+              </div></div>
             </div>
-            <!-- End builder-controls -->
 
-            <!-- Right: Summary sidebar -->
-            <aside class="builder-sidebar" aria-label="Build summary">
+            <aside class="builder-sidebar reveal" aria-label="Build summary">
               <div class="builder-summary-card">
                 <h3>Your build</h3>
-
-                <ul class="builder-items-list" id="selectedServices" aria-live="polite">
-                  <li style="color:var(--muted);font-style:italic;">No services selected yet.</li>
-                </ul>
-
-                <div class="builder-total-wrap">
-                  <span class="builder-total-label">Estimated total</span>
-                  <span class="builder-total-amount" id="builderTotal">$0</span>
+                <ul class="builder-items-list" id="selectedServices" aria-live="polite"><li>No services selected yet.</li></ul>
+                <div class="builder-total-wrap"><span class="builder-total-label" id="builderTotalLabel">Mobile-first starting point</span><span class="builder-total-amount" id="builderTotal">$40 MOBILE MINIMUM</span></div>
+                <div class="builder-breakdown" id="builderBreakdown">
+                  <div class="builder-breakdown-row"><span>Selected services</span><strong id="builderSubtotalValue">$0</strong></div>
+                  <div class="builder-breakdown-row" id="builderMinimumRow"><span>Mobile minimum</span><strong id="builderMinimumValue">$40</strong></div>
+                  <div class="builder-breakdown-row"><span>Starting total</span><strong id="builderStartingValue">$40</strong></div>
                 </div>
-
-                <div id="builderMessage" class="builder-message" style="display:none;"></div>
-
+                <div id="builderMessage" class="builder-message info">Select services to begin. Custom mobile appointments have a $40 minimum.</div>
                 <div class="bundle-recommendation" id="bundleRecommendation" aria-live="polite"></div>
-
                 <div class="builder-actions">
-                  <button class="button" type="button" id="continueBooking" disabled>
-                    Continue to booking
-                  </button>
-                  <button class="button button-ghost" type="button" id="applyRecommendedPreset" style="display:none;">
-                    Apply recommended preset
-                  </button>
-                  <button class="button button-ghost" type="button" id="resetBuilder">
-                    Reset all
-                  </button>
+                  <button class="button" type="button" id="continueBooking" disabled>Continue Booking</button>
+                  <button class="button button-ghost" type="button" id="applyRecommendedPreset" hidden>Apply Recommended Preset</button>
+                  <button class="button button-ghost" type="button" id="keepCustomBuild" hidden>Keep Custom Build</button>
+                  <button class="button button-ghost" type="button" id="resetBuilder">Reset Builder</button>
                 </div>
-
-                <p id="builderSummary" class="fine-print" style="margin-top:12px;">
-                  A $40 mobile minimum applies. Assessment conditions stop fixed pricing.
-                </p>
               </div>
             </aside>
-
           </div>
         </form>
       </div>
     </section>
 
-    <section class="section section-dark">
-      <div class="container">
-        <div class="section-heading reveal">
-          <p class="eyebrow">Prefer a preset?</p>
-          <h2>Choose a ready-made Reset.</h2>
-          <p>Our preset services cover the most common interior needs at a straightforward starting price.</p>
-        </div>
-        <div class="hero-actions reveal">
-          <a class="button button-ghost" href="../services/">View preset services</a>
-        </div>
-      </div>
-    </section>
+    <section class="section section-dark"><div class="container"><div class="section-heading reveal"><p class="eyebrow">Prefer a preset?</p><h2>Choose a ready-made Reset.</h2><p>Our preset services cover the most common interior needs at a straightforward starting price.</p></div><div class="hero-actions reveal"><a class="button button-ghost" href="../services/">View preset services</a></div></div></section>
   </main>
 
-  <footer class="site-footer">
-    <div class="container footer-grid">
-      <a class="brand" href="../" aria-label="TopNotch DetailLab home">
-        <img src="../C3C99B6F-A040-42DA-A6B3-3EB229F7A068.PNG" alt="" width="56" height="56" aria-hidden="true">
-        <span>
-          <strong>TopNotch</strong>
-          <small>DetailLab</small>
-        </span>
-      </a>
-
-      <ul class="footer-links">
-        <li><a href="../">Home</a></li>
-        <li><a href="../services/">Services</a></li>
-        <li><a href="../build/">Build Your Own</a></li>
-        <li><a href="../results/">Results</a></li>
-        <li><a href="../faq/">FAQ</a></li>
-        <li><a href="../about/">About</a></li>
-        <li><a href="../book/">Book Now</a></li>
-      </ul>
-
-      <p>Mobile interior detailing · Indianapolis. &copy; <span id="currentYear"></span> TopNotch DetailLab.</p>
-    </div>
-  </footer>
-
-  <div class="mobile-actions" aria-label="Quick actions">
-    <a href="../book/">Book</a>
-    <a href="../services/">Services</a>
-    <a href="../build/">Build</a>
-  </div>
-
+  <footer class="site-footer"><div class="container footer-grid"><a class="brand" href="../" aria-label="TopNotch DetailLab home"><img src="../C3C99B6F-A040-42DA-A6B3-3EB229F7A068.PNG" alt="" width="56" height="56" aria-hidden="true"><span><strong>TopNotch</strong><small>DetailLab</small></span></a><ul class="footer-links"><li><a href="../">Home</a></li><li><a href="../services/">Services</a></li><li><a href="../build/">Build Your Own</a></li><li><a href="../results/">Results</a></li><li><a href="../faq/">FAQ</a></li><li><a href="../about/">About</a></li><li><a href="../book/">Book Now</a></li></ul><p>Mobile interior detailing · Indianapolis. &copy; <span id="currentYear"></span> TopNotch DetailLab.</p></div></footer>
+  <div class="mobile-actions" aria-label="Quick actions"><a href="../book/">Book</a><a href="../services/">Services</a><a href="../build/">Build</a></div>
   <button class="back-to-top" id="backToTop" type="button" aria-label="Back to top">↑</button>
-
   <script src="../assets/js/main.js" defer></script>
   <script src="../assets/js/builder.js" defer></script>
 </body>
