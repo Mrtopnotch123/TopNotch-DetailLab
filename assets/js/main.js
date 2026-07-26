@@ -131,7 +131,7 @@
   function setupReveal() {
     const reveals = Array.from(document.querySelectorAll('.reveal'));
     const STAGGER_INTERVAL_MS = 70;
-    const MAX_STAGGER_DELAY_MS = 280;
+    const STAGGER_STEPS = 5;
     if (!reveals.length) return;
 
     const staggerContainers = new Map();
@@ -159,7 +159,7 @@
         el.closest('.hero-grid, .trust-grid, .service-grid, .why-grid, .about-grid, .process-grid, .tool-grid, .faq-list, .final-cta, .builder-layout, .section, .page-hero') ||
         document.body;
       const index = staggerContainers.get(container) || 0;
-      el.style.setProperty('--reveal-delay', Math.min(index * STAGGER_INTERVAL_MS, MAX_STAGGER_DELAY_MS) + 'ms');
+      el.style.setProperty('--reveal-delay', (index % STAGGER_STEPS) * STAGGER_INTERVAL_MS + 'ms');
       staggerContainers.set(container, index + 1);
     });
 
