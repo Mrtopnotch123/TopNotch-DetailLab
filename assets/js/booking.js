@@ -174,6 +174,7 @@
     }
 
     function feedbackIdFor(field) {
+      if (!field || !field.id) return '';
       return field.id + 'Feedback';
     }
 
@@ -233,7 +234,7 @@
       }
       const value = field.value.trim();
       if (!value) return field.hasAttribute('required') ? fieldLabel(field) + ' is required.' : '';
-      if (field.id === 'customerEmail' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      if (field.id === 'customerEmail' && field.validity && field.validity.typeMismatch) {
         return 'Please enter a valid email address.';
       }
       if (field.id === 'customerPhone') {
@@ -246,7 +247,7 @@
         if (year < 1900 || year > maxYear) return 'Please enter a vehicle year between 1900 and ' + maxYear + '.';
       }
       if (field.id === 'cityZip') {
-        if (!/^[A-Za-z0-9][A-Za-z0-9,\-.\s]{1,59}$/.test(value)) return 'Use letters, numbers, spaces, commas, periods, or hyphens only.';
+        if (!/^[A-Za-z0-9][A-Za-z0-9,\-.\s]{0,59}$/.test(value)) return 'Use letters, numbers, spaces, commas, periods, or hyphens only.';
         if (!(/[A-Za-z]{2,}/.test(value) || /\b\d{5}(?:-\d{4})?\b/.test(value))) return 'Enter a city name or a valid ZIP code.';
       }
       if (field.id === 'preferredDate') {
