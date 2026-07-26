@@ -1,0 +1,5 @@
+/* Minimal page-specific tweaks for Build */
+.tn-builder {
+  max-width: var(--tn-max-width);
+  margin: 0 auto;
+}
