@@ -130,16 +130,16 @@
   /* ---------- Reveal on scroll ---------- */
   function setupReveal() {
     const reveals = Array.from(document.querySelectorAll('.reveal'));
+    const STAGGER_INTERVAL_MS = 70;
+    const MAX_STAGGER_DELAY_MS = 280;
     if (!reveals.length) return;
 
     const staggerContainers = new Map();
 
     reveals.forEach(function (el) {
-      let revealClass = 'reveal-copy';
+      let revealClass;
 
-      if (el.matches('.hero-copy')) {
-        revealClass = 'reveal-copy';
-      } else if (el.matches('.hero-visual')) {
+      if (el.matches('.hero-visual')) {
         revealClass = 'reveal-stage';
       } else if (el.closest('.final-cta')) {
         revealClass = 'reveal-cta';
@@ -149,6 +149,8 @@
         )
       ) {
         revealClass = 'reveal-card';
+      } else {
+        revealClass = 'reveal-copy';
       }
 
       el.classList.add(revealClass);
@@ -157,7 +159,7 @@
         el.closest('.hero-grid, .trust-grid, .service-grid, .why-grid, .about-grid, .process-grid, .tool-grid, .faq-list, .final-cta, .builder-layout, .section, .page-hero') ||
         document.body;
       const index = staggerContainers.get(container) || 0;
-      el.style.setProperty('--reveal-delay', Math.min(index * 70, 280) + 'ms');
+      el.style.setProperty('--reveal-delay', Math.min(index * STAGGER_INTERVAL_MS, MAX_STAGGER_DELAY_MS) + 'ms');
       staggerContainers.set(container, index + 1);
     });
 
