@@ -1263,6 +1263,10 @@ details p,
   font-weight: 700;
 }
 
+.form-status.info {
+  color: #cfd4db;
+}
+
 .form-status.success {
   color: #9ee9bd;
 }
@@ -1270,6 +1274,22 @@ details p,
 .field-error {
   border-color: rgba(255, 48, 72, 0.72) !important;
   box-shadow: 0 0 0 4px rgba(217, 20, 43, 0.12) !important;
+}
+
+.field-feedback {
+  min-height: 18px;
+  margin: -10px 0 16px;
+  color: #ff8996;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.field-feedback:empty {
+  display: none;
+}
+
+.field-feedback.success {
+  color: #9ee9bd;
 }
 
 .selection-banner {
@@ -1392,6 +1412,10 @@ details p,
   display: block;
   color: #ff8897;
   margin-bottom: 6px;
+}
+
+.photo-requirement span {
+  display: block;
 }
 
 .local-preview-note {

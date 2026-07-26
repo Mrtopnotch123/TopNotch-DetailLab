@@ -51,7 +51,7 @@
           <div class="no-selection-actions"><a class="button" href="../services/">View Services</a><a class="button button-ghost" href="../build/">Build Your Own</a></div>
         </div>
 
-        <div class="photo-requirement" id="photoRequirement" role="note"><strong>Interior photos will be required</strong>Clear interior photos will be required before pricing and confirmation.</div>
+        <div class="photo-requirement" id="photoRequirement" role="note"><strong>Interior photos will be required</strong><span>Clear interior photos will be required before pricing and confirmation.</span></div>
 
         <div class="local-preview-note reveal">
           <h2>ONLINE REQUEST DELIVERY IS BEING CONNECTED</h2>
@@ -63,8 +63,8 @@
           <div class="form-grid">
             <div><label for="customerName">Full name <span class="label-note">Required</span></label><input id="customerName" name="name" type="text" autocomplete="name" required placeholder="Your full name"></div>
             <div><label for="customerEmail">Email address <span class="label-note">Required</span></label><input id="customerEmail" name="email" type="email" autocomplete="email" required placeholder="you@example.com"></div>
-            <div><label for="customerPhone">Phone number <span class="label-note">Required</span></label><input id="customerPhone" name="phone" type="tel" autocomplete="tel" required placeholder="(317) 000-0000"></div>
-            <div><label for="vehicleYear">Vehicle year <span class="label-note">Required</span></label><input id="vehicleYear" name="vehicleYear" type="text" inputmode="numeric" autocomplete="off" required placeholder="e.g. 2021"></div>
+            <div><label for="customerPhone">Phone number <span class="label-note">Required</span></label><input id="customerPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="(317) 000-0000"></div>
+            <div><label for="vehicleYear">Vehicle year <span class="label-note">Required</span></label><input id="vehicleYear" name="vehicleYear" type="text" inputmode="numeric" autocomplete="off" required maxlength="4" placeholder="e.g. 2021"></div>
             <div><label for="vehicleMake">Make <span class="label-note">Required</span></label><input id="vehicleMake" name="vehicleMake" type="text" autocomplete="organization-title" required placeholder="e.g. Toyota"></div>
             <div><label for="vehicleModel">Model <span class="label-note">Required</span></label><input id="vehicleModel" name="vehicleModel" type="text" autocomplete="organization-title" required placeholder="e.g. Camry"></div>
             <div><label for="vehicleType">Vehicle type <span class="label-note">Required</span></label><select id="vehicleType" name="vehicleType" required><option value="">Choose one</option><option>Coupe / Sedan</option><option>SUV / Crossover</option><option>Truck</option><option>Three-row SUV / Minivan</option><option>Other</option></select></div>
