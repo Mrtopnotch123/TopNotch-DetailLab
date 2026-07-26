@@ -129,12 +129,42 @@
 
   /* ---------- Reveal on scroll ---------- */
   function setupReveal() {
-    const reveals = document.querySelectorAll('.reveal');
+    const reveals = Array.from(document.querySelectorAll('.reveal'));
     if (!reveals.length) return;
+
+    const staggerContainers = new Map();
+
+    reveals.forEach(function (el) {
+      let revealClass = 'reveal-copy';
+
+      if (el.matches('.hero-copy')) {
+        revealClass = 'reveal-copy';
+      } else if (el.matches('.hero-visual')) {
+        revealClass = 'reveal-stage';
+      } else if (el.closest('.final-cta')) {
+        revealClass = 'reveal-cta';
+      } else if (
+        el.matches(
+          '.service-card, .why-card, .about-card, .trust-item, .coming-soon, .finder-card, .booking-form, .recovery-panel, .process-grid li, .faq-list details, .builder-panel, .builder-summary-card'
+        )
+      ) {
+        revealClass = 'reveal-card';
+      }
+
+      el.classList.add(revealClass);
+
+      const container =
+        el.closest('.hero-grid, .trust-grid, .service-grid, .why-grid, .about-grid, .process-grid, .tool-grid, .faq-list, .final-cta, .builder-layout, .section, .page-hero') ||
+        document.body;
+      const index = staggerContainers.get(container) || 0;
+      el.style.setProperty('--reveal-delay', Math.min(index * 70, 280) + 'ms');
+      staggerContainers.set(container, index + 1);
+    });
 
     /* Reduced motion: show everything immediately */
     if (prefersReducedMotion) {
       reveals.forEach(function (el) {
+        el.style.removeProperty('--reveal-delay');
         el.classList.add('visible');
       });
       return;
