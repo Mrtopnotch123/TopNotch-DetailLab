@@ -1,4 +1,0 @@
-User-agent: *
-Disallow:
-
-Sitemap: https://www.topnotchreset.com/sitemap.xml
