@@ -1,0 +1,4 @@
+/* Minimal page-specific tweaks for Services */
+.tn-comparison-table {
+  margin-top: var(--tn-space-md);
+}
