@@ -10,7 +10,7 @@
   console.info('TopNotch booking integration loaded');
 
   const SUPABASE_URL = 'https://okesvucbkkjgxiqfulqf.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rZXN2dWNia2tqZ3hpcXF1bHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjcwMDAwMDAsImV4cCI6MTg4NDc2Njc5OX0.sb_publishable_6-tCHweG3OisHB_kanJzwg_5kslJatw';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_6-tCHweG3OisHB_kanJzwg_5kslJatw';
   const SELECTION_KEY = 'topnotchSelection';
   const PENDING_KEY = 'topnotchPendingRequest';
   const DRAFT_KEY = 'topnotchBookingDraft';
@@ -25,7 +25,7 @@
       return null;
     }
     try {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
       console.info('Supabase client initialized');
       return supabaseClient;
     } catch (e) {
