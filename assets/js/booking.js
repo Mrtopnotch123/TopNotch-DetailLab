@@ -411,6 +411,8 @@
           statusEl.textContent = 'Sending your secure booking request…';
         }
 
+        let dbErrorDisplayed = false;
+
         try {
           const client = initSupabase();
           if (!client) {
@@ -456,6 +458,7 @@
             if (statusEl) {
               statusEl.className = 'form-status';
               statusEl.textContent = 'DATABASE ERROR\n\nCode: ' + (result.error.code || 'UNKNOWN') + '\nMessage: ' + (result.error.message || 'No message provided');
+              dbErrorDisplayed = true;
             }
             throw result.error;
           }
@@ -482,9 +485,11 @@
 
         } catch (err) {
           console.error('Booking submission error:', err);
-          if (statusEl) {
+          if (statusEl && !dbErrorDisplayed) {
             statusEl.className = 'form-status';
             statusEl.textContent = "WE COULDN'T SEND YOUR REQUEST\n\nYour information is still on this page. Check your connection and try again.";
+          }
+          if (statusEl) {
             statusEl.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'nearest' });
           }
         } finally {

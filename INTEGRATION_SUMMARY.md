@@ -15,7 +15,7 @@
 ### 2. **Supabase v2 Integration** ✅
 - **Credentials Configured:**
   - Project URL: `https://okesvucbkkjgxiqfulqf.supabase.co`
-  - Anon Key: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (stored in booking.js)
+  - Publishable Key: stored in `booking.js` as `SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_...` format)
   - CDN: `https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2`
 
 - **Library Loading:**
@@ -94,7 +94,7 @@
 - **Network Error:** User sees "WE COULDN'T SEND YOUR REQUEST" message, form data remains in page
 - **Validation Error:** First failing field is focused and scrolled into view
 - **Missing Service:** User is prompted to select a service first
-- **Supabase Down:** Graceful fallback with helpful message
+- **Database Error:** Specific Supabase error code and message are shown in the status element; the generic network-error fallback is suppressed so the exact DB error is preserved for debugging
 
 ---
 
