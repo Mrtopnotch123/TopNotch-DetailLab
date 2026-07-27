@@ -1,15 +1,30 @@
 /* =========================================================
    TOPNOTCH DETAILLAB — BOOKING.JS
-   Reads topnotchSelection, validates locally, stores request preview only.
+   Supabase v2 integration for live booking requests.
+   Reads topnotchSelection, validates locally, inserts to Supabase.
 ========================================================= */
 
 (function () {
   'use strict';
 
+  const SUPABASE_URL = 'https://okesvucbkkjgxiqfulqf.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rZXN2dWNia2tqZ3hpcXF1bHFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjcwMDAwMDAsImV4cCI6MTg4NDc2Njc5OX0.sb_publishable_6-tCHweG3OisHB_kanJzwg_5kslJatw';
   const SELECTION_KEY = 'topnotchSelection';
   const PENDING_KEY = 'topnotchPendingRequest';
   const DRAFT_KEY = 'topnotchBookingDraft';
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let supabaseClient = null;
+
+  function initSupabase() {
+    if (supabaseClient) return supabaseClient;
+    if (!window.supabase) {
+      console.error('Supabase library not loaded');
+      return null;
+    }
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return supabaseClient;
+  }
 
   function parseSelection() {
     try {
@@ -24,6 +39,14 @@
     try {
       sessionStorage.removeItem(SELECTION_KEY);
       sessionStorage.removeItem('topnotchBuilderDraft');
+    } catch (error) {
+      /* ignore */
+    }
+  }
+
+  function clearPendingRequest() {
+    try {
+      sessionStorage.removeItem(PENDING_KEY);
     } catch (error) {
       /* ignore */
     }
@@ -84,7 +107,6 @@
     const bannerMeta = document.getElementById('selectionBannerMeta');
     const bannerContinue = document.getElementById('selectionContinue');
     const bannerChange = document.getElementById('selectionChange');
-    const bannerClear = document.getElementById('selectionClear');
 
     const summaryWrap = document.querySelector('.booking-selection-summary');
     const titleEl = document.getElementById('bookingSelectionTitle');
@@ -97,10 +119,10 @@
     const statusEl = document.getElementById('bookingStatus');
     const dateInput = document.getElementById('preferredDate');
     const progressEl = document.getElementById('bookingProgress');
-    const submitButton = document.getElementById('saveRequestPreview');
+    const submitButton = document.getElementById('submitBookingRequest');
     const trackedFieldIds = ['customerName', 'customerEmail', 'customerPhone', 'vehicleYear', 'vehicleMake', 'vehicleModel', 'vehicleType', 'cityZip', 'preferredDate', 'condition', 'notes', 'bookingConsent'];
     const requiredFieldIds = ['customerName', 'customerEmail', 'customerPhone', 'vehicleYear', 'vehicleMake', 'vehicleModel', 'vehicleType', 'cityZip', 'preferredDate', 'condition', 'bookingConsent'];
-    let previewSaved = false;
+    let isSubmitting = false;
 
     if (dateInput) {
       dateInput.min = localDateString();
@@ -115,13 +137,6 @@
       if (selection && bannerMeta) bannerMeta.textContent = selectionMeta(selection);
       if (bannerContinue) bannerContinue.href = '../book/';
       if (bannerChange) bannerChange.href = selection && (selection.mode === 'custom' || selection.mode === 'assessment') ? '../build/' : '../services/';
-      if (bannerClear) {
-        bannerClear.onclick = function () {
-          if (!window.confirm('Clear the selected service?')) return;
-          clearSelection();
-          renderSelection();
-        };
-      }
 
       if (!selection || !selection.package) {
         if (summaryWrap) summaryWrap.style.display = 'none';
@@ -136,7 +151,7 @@
       if (summaryWrap) summaryWrap.style.display = '';
       if (submitButton) submitButton.disabled = false;
       if (titleEl) titleEl.textContent = selection.package;
-      if (priceEl) priceEl.innerHTML = '<strong>' + selectionMeta(selection) + '</strong>';
+      if (priceEl) priceEl.textContent = selectionMeta(selection);
 
       if (itemsEl) {
         itemsEl.innerHTML = '';
@@ -162,15 +177,6 @@
     function fieldValue(id) {
       const el = document.getElementById(id);
       return el ? el.value.trim() : '';
-    }
-
-    function escapeHtml(value) {
-      return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
     }
 
     function feedbackIdFor(field) {
@@ -222,7 +228,7 @@
         cityZip: 'City or ZIP code',
         preferredDate: 'Preferred date',
         condition: 'Interior condition',
-        bookingConsent: 'Local preview acknowledgment'
+        bookingConsent: 'Booking acknowledgment'
       };
       return labels[field.id] || 'This field';
     }
@@ -230,7 +236,7 @@
     function validationMessage(field) {
       if (!field) return '';
       if (field.type === 'checkbox') {
-        return field.checked ? '' : 'Please confirm the local preview acknowledgment.';
+        return field.checked ? '' : 'Please confirm that you understand this is a pending booking request.';
       }
       const value = field.value.trim();
       if (!value) return field.hasAttribute('required') ? fieldLabel(field) + ' is required.' : '';
@@ -315,31 +321,6 @@
         draft = null;
       }
 
-      if (!draft) {
-        try {
-          const rawRequest = sessionStorage.getItem(PENDING_KEY);
-          if (rawRequest) {
-            const request = JSON.parse(rawRequest);
-            draft = {
-              customerName: request.customer && request.customer.name ? request.customer.name : '',
-              customerEmail: request.customer && request.customer.email ? request.customer.email : '',
-              customerPhone: request.customer && request.customer.phone ? request.customer.phone : '',
-              vehicleYear: request.vehicle && request.vehicle.year ? request.vehicle.year : '',
-              vehicleMake: request.vehicle && request.vehicle.make ? request.vehicle.make : '',
-              vehicleModel: request.vehicle && request.vehicle.model ? request.vehicle.model : '',
-              vehicleType: request.vehicle && request.vehicle.type ? request.vehicle.type : '',
-              cityZip: request.cityZip || '',
-              preferredDate: request.preferredDate || '',
-              condition: request.condition || '',
-              notes: request.notes || '',
-              bookingConsent: true
-            };
-          }
-        } catch (error) {
-          draft = null;
-        }
-      }
-
       if (!draft) return;
       trackedFieldIds.forEach(function (id) {
         const field = document.getElementById(id);
@@ -347,17 +328,6 @@
         if (field.type === 'checkbox') field.checked = !!draft[id];
         else if (typeof draft[id] === 'string') field.value = draft[id];
       });
-      if (statusEl) {
-        statusEl.className = 'form-status info';
-        statusEl.textContent = 'Restored your local booking draft from this browser session.';
-      }
-    }
-
-    function markDraftDirty() {
-      if (!previewSaved || !statusEl) return;
-      statusEl.className = 'form-status info';
-      statusEl.textContent = 'You have unsaved changes on this device. Save Request Preview again to update the local preview.';
-      previewSaved = false;
     }
 
     function validateForm() {
@@ -381,14 +351,16 @@
     renderSelection();
     updateFormProgress();
 
-    form.addEventListener('submit', function (event) {
+    form.addEventListener('submit', async function (event) {
       event.preventDefault();
+
+      if (isSubmitting) return;
 
       const selection = parseSelection();
       if (!selection || !selection.package) {
         if (statusEl) {
           statusEl.className = 'form-status';
-          statusEl.textContent = 'Choose a service before saving a request preview.';
+          statusEl.textContent = 'Choose a service before submitting a booking request.';
         }
         return;
       }
@@ -406,28 +378,87 @@
         return;
       }
 
-      const request = {
-        selection: selection,
-        customer: { name: fieldValue('customerName'), email: fieldValue('customerEmail'), phone: fieldValue('customerPhone') },
-        vehicle: { year: fieldValue('vehicleYear'), make: fieldValue('vehicleMake'), model: fieldValue('vehicleModel'), type: fieldValue('vehicleType') },
-        cityZip: fieldValue('cityZip'),
-        preferredDate: fieldValue('preferredDate'),
-        condition: fieldValue('condition'),
-        notes: fieldValue('notes'),
-        createdAt: new Date().toISOString()
-      };
+      isSubmitting = true;
+      if (submitButton) {
+        submitButton.disabled = true;
+      }
+      if (statusEl) {
+        statusEl.className = 'form-status info';
+        statusEl.textContent = 'Submitting your booking request...';
+      }
 
       try {
-        sessionStorage.setItem(PENDING_KEY, JSON.stringify(request));
-        sessionStorage.setItem(DRAFT_KEY, JSON.stringify(collectDraft()));
-      } catch (error) { /* ignore */ }
+        const client = initSupabase();
+        if (!client) {
+          throw new Error('Supabase client initialization failed');
+        }
 
-      if (statusEl) {
-        statusEl.className = 'form-status success';
-        statusEl.innerHTML = '<strong>Local preview saved.</strong> ' + escapeHtml(selection.package) + ' for ' + escapeHtml(formatDisplayDate(request.preferredDate)) + ' has been saved on this device only. Nothing has been sent to TopNotch DetailLab, and no appointment has been confirmed.';
-        statusEl.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+        const bookingPayload = {
+          customer_name: fieldValue('customerName'),
+          customer_email: fieldValue('customerEmail').toLowerCase(),
+          customer_phone: fieldValue('customerPhone'),
+          vehicle_year: Number.parseInt(fieldValue('vehicleYear'), 10),
+          vehicle_make: fieldValue('vehicleMake'),
+          vehicle_model: fieldValue('vehicleModel'),
+          vehicle_type: fieldValue('vehicleType'),
+          city_zip: fieldValue('cityZip'),
+          preferred_date: fieldValue('preferredDate'),
+          interior_condition: fieldValue('condition'),
+          customer_notes: fieldValue('notes') || null,
+          selection_mode: selection.mode || 'preset',
+          package_name: selection.package,
+          starting_price: selection.assessmentRequired ? null : (selection.price || null),
+          selected_services: Array.isArray(selection.services) ? JSON.stringify(selection.services) : '[]',
+          assessment_required: Boolean(selection.assessmentRequired),
+          photo_status: selection.assessmentRequired ? 'required' : 'not_required',
+          photo_count: 0,
+          status: 'new',
+          privacy_consent: document.getElementById('bookingConsent').checked,
+          consent_version: '2026-07-27-v1',
+          submission_source: 'website',
+          client_created_at: new Date().toISOString()
+        };
+
+        const { error } = await client
+          .from('bookings')
+          .insert([bookingPayload]);
+
+        if (error) {
+          console.error('Supabase insert error:', error);
+          throw new Error('Failed to submit booking');
+        }
+
+        // Success: request received
+        if (statusEl) {
+          statusEl.className = 'form-status success';
+          let confirmMsg = 'REQUEST RECEIVED\n\nYour booking request was sent successfully. This is not yet a confirmed appointment. TopNotch DetailLab will review your service, vehicle details, condition, location, preferred date, and pricing before confirmation.';
+          
+          if (selection.assessmentRequired) {
+            confirmMsg += '\n\nClear interior photos will be requested before pricing and confirmation.';
+          }
+          
+          statusEl.textContent = confirmMsg;
+          statusEl.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+        }
+
+        clearPendingRequest();
+        clearSelection();
+        form.reset();
+        renderSelection();
+
+      } catch (err) {
+        console.error('Booking submission error:', err);
+        if (statusEl) {
+          statusEl.className = 'form-status';
+          statusEl.textContent = "WE COULDN'T SEND YOUR REQUEST\n\nYour information is still on this page. Check your connection and try again.";
+          statusEl.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+        }
+      } finally {
+        isSubmitting = false;
+        if (submitButton) {
+          submitButton.disabled = false;
+        }
       }
-      previewSaved = true;
     });
 
     form.querySelectorAll('input, select, textarea').forEach(function (field) {
@@ -435,7 +466,6 @@
         if (field.dataset.touched === 'true' || field.value.trim()) validateField(field, true);
         else if (field.type !== 'checkbox') setFieldMessage(field, '');
         saveDraft();
-        markDraftDirty();
         updateFormProgress();
       });
       field.addEventListener('change', function () {
@@ -443,7 +473,6 @@
         if (field.id === 'customerPhone' && !validationMessage(field)) field.value = formatPhone(field.value);
         validateField(field, true);
         saveDraft();
-        markDraftDirty();
         updateFormProgress();
       });
       field.addEventListener('blur', function () {
