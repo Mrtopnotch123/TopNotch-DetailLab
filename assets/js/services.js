@@ -150,18 +150,18 @@
 
     function recommend(condition, special) {
       if (condition === 'severe') {
-        return { package: 'Recovery', price: null, text: 'Your interior may require a <strong>Recovery Assessment</strong>. Recovery handles severe neglect, excessive buildup, and conditions beyond the scope of our preset services. Clear interior photos are required before pricing.', actionText: 'Request Recovery Assessment' };
+        return { package: 'Recovery', price: null, text: 'Your interior may require a <strong>Recovery Assessment</strong>. Recovery handles severe neglect, excessive buildup, and conditions beyond standard package scope. Clear interior photos will be required before pricing.' };
       }
       if (special === 'heavy') {
-        return { package: 'Recovery', price: null, text: 'Extensive embedded pet hair or strong persistent odors may require a <strong>Recovery Assessment</strong> before a fixed price can be provided.', actionText: 'Request Recovery Assessment' };
+        return { package: 'Recovery', price: null, text: 'Extensive embedded pet hair or strong persistent odors may require a <strong>Recovery Assessment</strong> before a fixed price can be provided. Clear interior photos will be required.' };
       }
       if (condition === 'deep' || special === 'some') {
-        return { package: 'Deep Reset', price: 150, text: 'Based on your answers, a <strong>Deep Reset (from $150)</strong> is a strong starting point. It includes extraction, compressed-air blowout, vent cleaning, door jambs, and cargo area.', actionText: 'Book Deep Reset' };
+        return { package: 'Deep Reset', price: 150, text: 'Based on your answers, a <strong>Deep Reset (from $150)</strong> is a strong starting point. It includes extraction, compressed-air blowout, detailed vent cleaning, door-jamb cleaning, and material-specific care.' };
       }
       if (condition === 'normal') {
-        return { package: 'Full Reset', price: 75, text: 'Based on your answers, a <strong>Full Reset (from $75)</strong> is well suited for normal everyday interiors. It covers all accessible surfaces, interior glass, and Interior Finish &amp; UV Protection.', actionText: 'Book Full Reset' };
+        return { package: 'Full Reset', price: 75, text: 'Based on your answers, a <strong>Full Reset (from $75)</strong> is well suited for normal everyday interiors. It covers all accessible surfaces, interior glass, and protective finish.' };
       }
-      return { package: 'Quick Reset', price: 40, text: 'Based on your answers, a <strong>Quick Reset ($40)</strong> looks like the right fit — trash removal, vacuuming, and a light surface wipe-down.', actionText: 'Book Quick Reset' };
+      return { package: 'Quick Reset', price: 40, text: 'Based on your answers, a <strong>Quick Reset ($40)</strong> looks like the right fit — trash removal, vacuuming, and a light surface wipe-down.' };
     }
 
     let lastRecommendation = null;
@@ -179,7 +179,9 @@
       if (actionWrap) {
         actionWrap.classList.add('visible');
         const button = actionWrap.querySelector('[data-finder-book]') || actionWrap.querySelector('.button');
-        if (button) button.textContent = lastRecommendation.actionText;
+        if (button) {
+          button.textContent = 'Book ' + (lastRecommendation.package || 'Reset');
+        }
       }
     });
 
