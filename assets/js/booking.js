@@ -144,8 +144,8 @@
         return;
       }
 
-      const trackedFieldIds = ['customerName', 'customerEmail', 'customerPhone', 'vehicleYear', 'vehicleMake', 'vehicleModel', 'vehicleType', 'cityZip', 'preferredDate', 'condition', 'notes', 'bookingConsent'];
-      const requiredFieldIds = ['customerName', 'customerEmail', 'customerPhone', 'vehicleYear', 'vehicleMake', 'vehicleModel', 'vehicleType', 'cityZip', 'preferredDate', 'condition', 'bookingConsent'];
+      const trackedFieldIds = ['customerName', 'customerEmail', 'customerPhone', 'vehicleYear', 'vehicleMake', 'vehicleModel', 'vehicleType', 'cityZip', 'preferredDate', 'preferredTimeWindow', 'condition', 'notes', 'bookingConsent'];
+      const requiredFieldIds = ['customerName', 'customerEmail', 'customerPhone', 'vehicleYear', 'vehicleMake', 'vehicleModel', 'vehicleType', 'cityZip', 'preferredDate', 'preferredTimeWindow', 'condition', 'bookingConsent'];
       let isSubmitting = false;
 
       if (dateInput) {
@@ -251,6 +251,7 @@
           vehicleType: 'Vehicle type',
           cityZip: 'City or ZIP code',
           preferredDate: 'Preferred date',
+          preferredTimeWindow: 'Preferred time window',
           condition: 'Interior condition',
           bookingConsent: 'Booking acknowledgment'
         };
@@ -288,6 +289,9 @@
           if (picked < minDate) return 'Preferred date cannot be in the past.';
           if (picked > maxDate) return 'Please choose a date within the next 180 days.';
         }
+        if (field.id === 'preferredTimeWindow') {
+          if (['Morning', 'Afternoon', 'Evening', 'Flexible'].indexOf(value) === -1) return 'Please choose a valid time window.';
+        }
         return '';
       }
 
@@ -322,6 +326,7 @@
           vehicleType: fieldValue('vehicleType'),
           cityZip: fieldValue('cityZip'),
           preferredDate: fieldValue('preferredDate'),
+          preferredTimeWindow: fieldValue('preferredTimeWindow'),
           condition: fieldValue('condition'),
           notes: fieldValue('notes'),
           bookingConsent: !!(document.getElementById('bookingConsent') && document.getElementById('bookingConsent').checked)
@@ -429,6 +434,7 @@
             vehicle_type: fieldValue('vehicleType'),
             city_zip: fieldValue('cityZip'),
             preferred_date: fieldValue('preferredDate'),
+            preferred_time_window: fieldValue('preferredTimeWindow'),
             interior_condition: fieldValue('condition'),
             customer_notes: fieldValue('notes') || null,
             selection_mode: selection.mode || 'preset',
