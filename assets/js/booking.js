@@ -485,11 +485,11 @@
 
         } catch (err) {
           console.error('Booking submission error:', err);
-          if (statusEl && !dbErrorDisplayed) {
-            statusEl.className = 'form-status';
-            statusEl.textContent = "WE COULDN'T SEND YOUR REQUEST\n\nYour information is still on this page. Check your connection and try again.";
-          }
           if (statusEl) {
+            if (!dbErrorDisplayed) {
+              statusEl.className = 'form-status';
+              statusEl.textContent = "WE COULDN'T SEND YOUR REQUEST\n\nYour information is still on this page. Check your connection and try again.";
+            }
             statusEl.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'nearest' });
           }
         } finally {
