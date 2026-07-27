@@ -443,13 +443,21 @@
             client_created_at: new Date().toISOString()
           };
 
-          const { error } = await client
+          console.info('Booking payload:', bookingPayload);
+
+          const result = await client
             .from('bookings')
             .insert([bookingPayload]);
 
-          if (error) {
-            console.error('Supabase insert error:', error);
-            throw new Error('Failed to submit booking');
+          console.info('Supabase insert result:', result);
+
+          if (result.error) {
+            console.error('FULL SUPABASE BOOKING ERROR', result.error);
+            if (statusEl) {
+              statusEl.className = 'form-status';
+              statusEl.textContent = 'DATABASE ERROR\n\nCode: ' + (result.error.code || 'UNKNOWN') + '\nMessage: ' + (result.error.message || 'No message provided');
+            }
+            throw result.error;
           }
 
           console.info('Booking submitted successfully');
