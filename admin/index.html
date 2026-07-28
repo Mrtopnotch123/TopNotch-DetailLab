@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="description" content="Private owner dashboard for TopNotch DetailLab bookings.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <title>TOPNOTCH OWNER DASHBOARD</title>
+</head>
+<body class="admin-page">
+  <a class="skip-link" href="#adminMain">Skip to main content</a>
+
+  <main id="adminMain" class="admin-shell">
+    <section class="page-hero admin-page-hero">
+      <div class="container">
+        <p class="eyebrow">Private access only</p>
+        <h1>TOPNOTCH OWNER DASHBOARD</h1>
+        <p>Private booking management for TopNotch DetailLab.</p>
+        <a class="text-link admin-home-link" href="../">← Back to homepage</a>
+      </div>
+    </section>
+
+    <section class="admin-auth-wrap">
+      <div class="container">
+        <div class="admin-card admin-login-card" id="adminLoginCard">
+          <div class="admin-card-header">
+            <p class="admin-kicker">Owner sign-in</p>
+            <h2>Secure login</h2>
+          </div>
+          <form id="adminLoginForm" class="admin-login-form" novalidate>
+            <div class="admin-field">
+              <label for="adminEmail">Email</label>
+              <input id="adminEmail" type="email" name="email" autocomplete="email" required placeholder="owner@example.com">
+            </div>
+            <div class="admin-field">
+              <label for="adminPassword">Password</label>
+              <input id="adminPassword" type="password" name="password" autocomplete="current-password" required placeholder="Your password">
+            </div>
+            <button class="button button-wide" id="adminSignInButton" type="submit">SIGN IN</button>
+            <p class="admin-status" id="adminAuthStatus" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-dashboard-wrap" id="adminDashboard" hidden>
+      <div class="container admin-dashboard">
+        <div class="admin-card admin-dashboard-header">
+          <div>
+            <p class="admin-kicker">Bookings</p>
+            <h2>Live request queue</h2>
+            <p class="admin-subtitle">Read and update bookings through Supabase with owner-only RLS.</p>
+          </div>
+          <div class="admin-header-actions">
+            <button class="button button-ghost button-small" id="adminRefreshButton" type="button">Refresh</button>
+            <button class="button button-ghost button-small" id="adminSignOutButton" type="button">SIGN OUT</button>
+          </div>
+        </div>
+
+        <div class="admin-card admin-toolbar">
+          <div class="admin-field admin-toolbar-search">
+            <label for="adminSearch">Search</label>
+            <input id="adminSearch" type="search" autocomplete="off" placeholder="Reference, customer, vehicle, ZIP, package">
+          </div>
+          <div class="admin-field admin-toolbar-filter">
+            <label for="adminStatusFilter">Status filter</label>
+            <select id="adminStatusFilter">
+              <option value="new">New</option>
+              <option value="all">All</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="more_info_needed">More information needed</option>
+              <option value="declined">Declined</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="admin-count-card">
+            <span>Matching bookings</span>
+            <strong id="adminBookingCount">0</strong>
+          </div>
+        </div>
+
+        <p class="admin-status" id="adminDashboardStatus" role="status" aria-live="polite"></p>
+        <div class="admin-booking-list" id="adminBookingList" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="admin-detail-panel" id="adminDetailPanel" hidden>
+    <div class="admin-detail-backdrop" data-close-detail="true"></div>
+    <aside class="admin-detail-sheet" role="dialog" aria-modal="true" aria-labelledby="adminDetailTitle">
+      <header class="admin-detail-header">
+        <div>
+          <p class="admin-kicker">Booking details</p>
+          <h2 id="adminDetailTitle">Select a booking</h2>
+        </div>
+        <button class="button button-ghost button-small admin-detail-close" id="adminCloseDetail" type="button">Close</button>
+      </header>
+      <div class="admin-detail-content" id="adminDetailContent"></div>
+    </aside>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="../assets/js/admin.js" defer></script>
+</body>
+</html>
