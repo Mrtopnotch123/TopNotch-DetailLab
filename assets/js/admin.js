@@ -3,37 +3,7 @@
 
   const SUPABASE_URL = 'https://okesvucbkkjgxiqfulqf.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_6-tCHweG3OisHB_kanJzwg_5kslJatw';
-  const BOOKING_SELECT_PRIMARY = [
-    'id',
-    'reference_number',
-    'customer_name',
-    'customer_email',
-    'customer_phone',
-    'vehicle_year',
-    'vehicle_make',
-    'vehicle_model',
-    'vehicle_type',
-    'city_zip',
-    'preferred_date',
-    'preferred_time_window',
-    'interior_condition',
-    'customer_notes',
-    'selection_mode',
-    'package_name',
-    'starting_price',
-    'selected_services',
-    'assessment_required',
-    'photo_status',
-    'photo_count',
-    'status',
-    'privacy_consent',
-    'consent_version',
-    'submission_source',
-    'client_created_at',
-    'created_at',
-    'updated_at'
-  ].join(', ');
-  const BOOKING_SELECT_FALLBACK = [
+  const BOOKING_SELECT_SHARED = [
     'id',
     'customer_name',
     'customer_email',
@@ -61,7 +31,9 @@
     'client_created_at',
     'created_at',
     'updated_at'
-  ].join(', ');
+  ];
+  const BOOKING_SELECT_PRIMARY = ['reference_number'].concat(BOOKING_SELECT_SHARED).join(', ');
+  const BOOKING_SELECT_FALLBACK = BOOKING_SELECT_SHARED.join(', ');
   const STATUS_LABELS = {
     all: 'All',
     new: 'New',
@@ -646,8 +618,7 @@
   }
 
   function isMissingColumnError(error) {
-    const message = normalize(error && error.message);
-    return (error && error.code === '42703') || (message.includes('column') && message.includes('does not exist'));
+    return error && error.code === '42703';
   }
 
   function isRlsDeniedError(error) {
@@ -898,8 +869,7 @@
     client
       .from('bookings')
       .update({
-        status: nextStatus,
-        updated_at: new Date().toISOString()
+        status: nextStatus
       })
       .eq('id', booking.id)
       .select('id, status, updated_at')
