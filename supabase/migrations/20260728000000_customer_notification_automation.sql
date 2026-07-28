@@ -28,8 +28,8 @@ security definer
 set search_path = public, pg_catalog
 as $$
 declare
-  webhook_secret text := current_setting('app.settings.topnotch_customer_notification_secret', true);
-  webhook_url text := current_setting('app.settings.topnotch_customer_notification_webhook_url', true);
+  webhook_secret text := current_setting('app.webhooks.customer_notification_secret', true);
+  webhook_url text := current_setting('app.webhooks.customer_notification_webhook_url', true);
   payload jsonb;
 begin
   if tg_op <> 'UPDATE' then
@@ -41,11 +41,11 @@ begin
   end if;
 
   if webhook_secret is null or webhook_secret = '' then
-    raise exception 'Missing app.settings.topnotch_customer_notification_secret';
+    raise exception 'Missing app.webhooks.customer_notification_secret';
   end if;
 
   if webhook_url is null or webhook_url = '' then
-    raise exception 'Missing app.settings.topnotch_customer_notification_webhook_url';
+    raise exception 'Missing app.webhooks.customer_notification_webhook_url';
   end if;
 
   payload := jsonb_build_object(
@@ -64,7 +64,7 @@ begin
       'Content-Type', 'application/json',
       'X-TopNotch-Webhook-Secret', webhook_secret
     ),
-    timeout_milliseconds := 2000
+    timeout_milliseconds := 5000
   );
 
   return new;

@@ -61,7 +61,7 @@ function isPresent(value) {
 
 function money(value) {
   const amount = Number(value);
-  if (!Number.isFinite(amount)) return '—';
+  if (!Number.isFinite(amount)) return '-';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -218,7 +218,8 @@ function buildDeclinedEmail(record) {
     `Hi ${customerName},`,
     '',
     `Thanks for reaching out about ${packageName}.`,
-    `Reference number: ${reference}`
+    `Reference number: ${reference}`,
+    'If you’d like more context, please reply and we’ll be happy to help.'
   ];
 
   if (ownerMessage) {
@@ -236,6 +237,7 @@ function buildDeclinedEmail(record) {
         <p class="eyebrow">Booking update</p>
         <h1>Hello ${escapeHtml(customerName)},</h1>
         <p>Thanks for reaching out about ${escapeHtml(packageName)}. At this time, we’re not able to move forward with the booking.</p>
+        <p>If you’d like more context, please reply and we’ll be happy to help.</p>
         <div class="highlight">
           <div class="highlight-label">Reference number</div>
           <div class="highlight-value">${escapeHtml(reference)}</div>
@@ -437,7 +439,10 @@ async function supabaseFetch(path, options) {
 }
 
 async function claimNotificationEvent(record, previousRecord) {
-  const sourceUpdatedAt = trimValue(record.updated_at || previousRecord.updated_at || record.created_at || new Date().toISOString());
+  const sourceUpdatedAt = trimValue(record.updated_at || previousRecord.updated_at || record.created_at);
+  if (!sourceUpdatedAt) {
+    throw new Error('Webhook payload is missing an update timestamp.');
+  }
   const dedupeKey = [
     getBookingId(record),
     normalize(record.status),
@@ -463,6 +468,7 @@ async function claimNotificationEvent(record, previousRecord) {
   });
 
   if (!Array.isArray(response) || response.length === 0) {
+    console.info('Skipping duplicate customer notification webhook', { dedupeKey });
     return { claimed: false, dedupeKey };
   }
 

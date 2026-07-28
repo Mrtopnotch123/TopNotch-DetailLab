@@ -61,7 +61,7 @@
     { status: 'completed', label: 'MARK COMPLETED' },
     { status: 'cancelled', label: 'CANCEL BOOKING' }
   ];
-  // Give the webhook enough time to clear the booking, send Brevo, and write back the result.
+  // Give the webhook enough time to clear the booking, send Brevo, and write back the result; if it takes longer, the dashboard shows a pending state instead of a false failure.
   const NOTIFICATION_POLL_TIMEOUT_MS = 15000;
   const NOTIFICATION_POLL_INTERVAL_MS = 1000;
   const state = {
@@ -537,8 +537,9 @@
 
     return {
       ok: false,
+      pending: true,
       booking: latestBooking,
-      message: 'Booking updated but customer email could not be delivered.'
+      message: 'Booking updated but customer email status is pending. Check again in a moment.'
     };
   }
 
