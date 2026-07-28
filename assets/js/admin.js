@@ -37,7 +37,12 @@
     'created_at',
     'updated_at'
   ];
-  const BOOKING_SELECT_PRIMARY = ['reference_number'].concat(BOOKING_SELECT_SHARED).join(', ');
+  const BOOKING_SELECT_NOTIFICATION = [
+    'customer_notified_status',
+    'customer_notified_at',
+    'customer_notification_error'
+  ];
+  const BOOKING_SELECT_PRIMARY = ['reference_number'].concat(BOOKING_SELECT_SHARED, BOOKING_SELECT_NOTIFICATION).join(', ');
   const BOOKING_SELECT_FALLBACK = BOOKING_SELECT_SHARED.join(', ');
   const STATUS_LABELS = {
     all: 'All',
@@ -227,6 +232,30 @@
       final_price: booking.final_price == null ? '' : String(booking.final_price),
       confirmed_location: booking.confirmed_location || '',
       owner_message: booking.owner_message || ''
+    };
+  }
+
+  function getNotificationState(booking) {
+    const error = String(booking.customer_notification_error || '').trim();
+    const notifiedStatus = normalize(booking.customer_notified_status);
+    if (error) {
+      return {
+        state: 'failed',
+        label: 'Delivery failed',
+        message: error
+      };
+    }
+    if (notifiedStatus) {
+      return {
+        state: 'success',
+        label: 'Customer successfully notified',
+        message: 'Customer successfully notified.'
+      };
+    }
+    return {
+      state: 'pending',
+      label: 'Pending',
+      message: 'Customer email is still being processed.'
     };
   }
 
@@ -442,6 +471,71 @@
     if (els.bookingList) els.bookingList.textContent = '';
     if (els.bookingCount) els.bookingCount.textContent = '0';
     setDashboardStatus('');
+  }
+
+  async function fetchBookingById(bookingId) {
+    const client = initSupabase();
+    if (!client) {
+      throw new Error('Supabase library was not loaded.');
+    }
+
+    const tries = [BOOKING_SELECT_PRIMARY, BOOKING_SELECT_FALLBACK];
+    let lastError = null;
+
+    for (let index = 0; index < tries.length; index += 1) {
+      const result = await client
+        .from('bookings')
+        .select(tries[index])
+        .eq('id', bookingId)
+        .single();
+
+      if (!result.error) {
+        return result.data || null;
+      }
+
+      lastError = result.error;
+      if (!isMissingColumnError(result.error) || index === tries.length - 1) {
+        throw result.error;
+      }
+    }
+
+    throw lastError || new Error('Unable to load booking.');
+  }
+
+  async function waitForCustomerNotification(bookingId, expectedStatus) {
+    const deadline = Date.now() + 15000;
+    let latestBooking = null;
+
+    while (Date.now() < deadline) {
+      latestBooking = await fetchBookingById(bookingId);
+      if (latestBooking) {
+        const notificationState = getNotificationState(latestBooking);
+        if (notificationState.state === 'failed') {
+          return {
+            ok: false,
+            booking: latestBooking,
+            message: 'Booking updated but customer email could not be delivered.'
+          };
+        }
+        if (normalize(latestBooking.customer_notified_status) === normalize(expectedStatus)) {
+          return {
+            ok: true,
+            booking: latestBooking,
+            message: 'Customer successfully notified.'
+          };
+        }
+      }
+
+      await new Promise(function (resolve) {
+        setTimeout(resolve, 1000);
+      });
+    }
+
+    return {
+      ok: false,
+      booking: latestBooking,
+      message: 'Booking updated but customer email could not be delivered.'
+    };
   }
 
   function openDetail(bookingId, trigger) {
@@ -824,6 +918,12 @@
     appendTextValueRow(auditSection, 'Client timestamp', formatDateTime(booking.client_created_at));
     appendTextValueRow(auditSection, 'Database timestamp', formatDateTime(booking.created_at));
     appendTextValueRow(auditSection, 'Last updated', formatDateTime(booking.updated_at));
+    const notificationState = getNotificationState(booking);
+    appendTextValueRow(auditSection, 'Customer notification', notificationState.label);
+    appendTextValueRow(auditSection, 'Notification sent at', formatDateTime(booking.customer_notified_at));
+    if (notificationState.state === 'failed') {
+      appendTextValueRow(auditSection, 'Notification error', booking.customer_notification_error);
+    }
 
     const actions = renderDetailActions(booking);
 
@@ -1109,12 +1209,14 @@
           return;
         }
 
-        state.lastActionMessage = 'Status updated. Customer notification email is not automated yet.';
-        setDashboardStatus(state.lastActionMessage, 'success');
+        setDashboardStatus('Booking updated. Waiting for customer email…', 'info');
+        const notificationResult = await waitForCustomerNotification(booking.id, nextStatus);
+        state.lastActionMessage = notificationResult.message;
+        setDashboardStatus(notificationResult.message, notificationResult.ok ? 'success' : 'error');
         await refreshBookings({
           showLoading: false,
-          successMessage: state.lastActionMessage,
-          successTone: 'success'
+          successMessage: notificationResult.message,
+          successTone: notificationResult.ok ? 'success' : 'error'
         });
         state.selectedId = String(booking.id);
         highlightActiveBooking(state.selectedId);
@@ -1181,11 +1283,16 @@
         return Object.assign({}, item, updatedBooking);
       });
       state.selectedId = String(booking.id);
-      // TODO: Wire customer email automation in a follow-up task.
-      state.lastActionMessage = 'Appointment confirmed in the dashboard. Customer email automation is not connected yet.';
-      setDashboardStatus(state.lastActionMessage, 'success');
+      setConfirmationStatus('Booking updated. Waiting for customer email…', 'info');
+      const notificationResult = await waitForCustomerNotification(booking.id, 'confirmed');
+      state.lastActionMessage = notificationResult.message;
+      setDashboardStatus(notificationResult.message, notificationResult.ok ? 'success' : 'error');
       closeConfirmation();
-      renderBookings();
+      await refreshBookings({
+        showLoading: false,
+        successMessage: notificationResult.message,
+        successTone: notificationResult.ok ? 'success' : 'error'
+      });
       highlightActiveBooking(state.selectedId);
     } catch (error) {
       console.error('Booking confirmation error', error);
