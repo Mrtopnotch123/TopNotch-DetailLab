@@ -42,6 +42,12 @@
         <div class="booking-selection-summary" style="display:none;">
           <h3 id="bookingSelectionTitle"></h3>
           <p class="booking-selection-price" id="bookingSelectionPrice"></p>
+          <div class="booking-selection-details" aria-label="Request summary">
+            <div><span>Vehicle</span><strong id="bookingSelectionVehicle"></strong></div>
+            <div><span>Preferred date</span><strong id="bookingSelectionDate"></strong></div>
+            <div><span>Preferred arrival window</span><strong id="bookingSelectionWindow"></strong></div>
+            <div><span>Service location</span><strong id="bookingSelectionLocation"></strong></div>
+          </div>
           <ul class="booking-selection-items" id="bookingSelectionItems" aria-label="Selected services"></ul>
         </div>
 
@@ -83,7 +89,19 @@
             </div>
           </div>
             <div><label for="preferredDate">Preferred date <span class="label-note">Required</span></label><input id="preferredDate" name="date" type="date" autocomplete="off" required></div>
-            <div><label for="preferredTimeWindow">Preferred time window <span class="label-note">Required</span></label><select id="preferredTimeWindow" name="preferredTimeWindow" required><option value="">Choose one</option><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Flexible</option></select></div>
+            <div class="booking-arrival-window">
+              <label for="preferredTimeWindow">Preferred arrival window <span class="label-note">Required</span></label>
+              <p class="field-hint">Choose the window when you would like TopNotch DetailLab to arrive. Your appointment is not confirmed until your request has been reviewed and approved.</p>
+              <select id="preferredTimeWindow" name="preferredTimeWindow" required>
+                <option value="">Choose one</option>
+                <option value="8:00 AM-10:00 AM">8:00 AM–10:00 AM</option>
+                <option value="10:00 AM-12:00 PM">10:00 AM–12:00 PM</option>
+                <option value="12:00 PM-2:00 PM">12:00 PM–2:00 PM</option>
+                <option value="2:00 PM-4:00 PM">2:00 PM–4:00 PM</option>
+                <option value="4:00 PM-6:00 PM">4:00 PM–6:00 PM</option>
+                <option value="Flexible">Flexible</option>
+              </select>
+            </div>
             <div><label for="condition">Interior condition <span class="label-note">Required</span></label><select id="condition" name="condition" required><option value="">Choose one</option><option>Maintained / light</option><option>Normal daily buildup</option><option>Deep cleaning needed</option><option>Severely neglected</option></select></div>
           </div>
           <label for="notes">Additional notes <span class="label-note">Optional</span></label>

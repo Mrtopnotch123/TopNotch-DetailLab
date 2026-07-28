@@ -215,6 +215,73 @@
     }).format(amount);
   }
 
+  function formatArrivalWindowLabel(value) {
+    const raw = trimText(value);
+    const labels = {
+      '8:00 AM-10:00 AM': '8:00 AM–10:00 AM',
+      '10:00 AM-12:00 PM': '10:00 AM–12:00 PM',
+      '12:00 PM-2:00 PM': '12:00 PM–2:00 PM',
+      '2:00 PM-4:00 PM': '2:00 PM–4:00 PM',
+      '4:00 PM-6:00 PM': '4:00 PM–6:00 PM',
+      Flexible: 'Flexible'
+    };
+    if (!raw) return '—';
+    return labels[raw] || raw;
+  }
+
+  function isAppleDevice() {
+    const ua = navigator.userAgent || '';
+    const platform = navigator.platform || '';
+    return /iPad|iPhone|iPod/.test(ua) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
+  function buildServiceLocationLines(booking) {
+    const street = trimText(booking.service_street_address);
+    const unit = trimText(booking.service_unit);
+    const city = trimText(booking.service_city);
+    const state = trimText(booking.service_state);
+    const zip = trimText(booking.service_zip);
+    const legacy = trimText(booking.city_zip);
+
+    if (!street) {
+      return legacy ? [legacy] : [];
+    }
+
+    const lines = [street];
+    if (unit) lines.push(unit);
+    if (city || state || zip) {
+      const cityState = [city, state].filter(Boolean).join(', ');
+      const cityStateZip = [cityState, zip].filter(Boolean).join(' ');
+      if (cityStateZip) lines.push(cityStateZip);
+    }
+    return lines.filter(Boolean);
+  }
+
+  function formatServiceLocationDisplay(booking) {
+    const lines = buildServiceLocationLines(booking);
+    return lines.length ? lines.join('\n') : '—';
+  }
+
+  function buildMapsAddress(booking) {
+    const street = trimText(booking.service_street_address);
+    if (!street) return '';
+    const unit = trimText(booking.service_unit);
+    const city = trimText(booking.service_city);
+    const state = trimText(booking.service_state);
+    const zip = trimText(booking.service_zip);
+    const cityState = [city, state].filter(Boolean).join(' ');
+    return [street, unit, cityState, zip].filter(Boolean).join(', ');
+  }
+
+  function buildMapsHref(booking) {
+    const address = buildMapsAddress(booking);
+    if (!address) return '';
+    const query = encodeURIComponent(address);
+    return isAppleDevice()
+      ? 'https://maps.apple.com/?q=' + query
+      : 'https://www.google.com/maps/search/?api=1&query=' + query;
+  }
+
   function formatReadableTime(value) {
     if (typeof value !== 'string' || !value) return value || '—';
     const parts = value.split(':');
@@ -246,7 +313,6 @@
 
   function getNotificationState(booking) {
     const error = String(booking.customer_notification_error || '').trim();
-    const notifiedStatus = normalize(booking.customer_notified_status);
     if (error) {
       return {
         state: 'failed',
@@ -254,7 +320,7 @@
         message: error
       };
     }
-    if (notifiedStatus) {
+    if (isNotificationComplete(booking, booking.customer_notified_status)) {
       return {
         state: 'success',
         label: 'Customer successfully notified',
@@ -263,9 +329,13 @@
     }
     return {
       state: 'pending',
-      label: 'Pending',
-      message: 'Customer email is still being processed.'
+      label: 'Processing',
+      message: 'Booking updated. Customer notification is processing.'
     };
+  }
+
+  function isNotificationComplete(booking, expectedStatus) {
+    return normalize(booking?.customer_notified_status) === normalize(expectedStatus) && String(booking?.customer_notified_at || '').trim() !== '';
   }
 
   function getConfirmationDefaults(booking) {
@@ -428,6 +498,7 @@
       booking.vehicle_make,
       booking.vehicle_model,
       booking.package_name,
+      booking.preferred_time_window,
       selectedServices
     ].map(normalize).join(' ');
   }
@@ -560,11 +631,11 @@
             ok: false,
             pending: false,
             booking: latestBooking,
-            message: 'Booking updated but customer email could not be delivered.'
+            message: 'Booking updated, but the customer email could not be delivered. Review the notification error before contacting the customer manually.'
           };
           break;
         }
-        if (normalize(latestBooking.customer_notified_status) === normalize(expectedStatus)) {
+        if (normalize(latestBooking.customer_notified_status) === normalize(expectedStatus) && String(latestBooking.customer_notified_at || '').trim()) {
           terminalResult = {
             ok: true,
             booking: latestBooking,
@@ -587,7 +658,7 @@
       ok: false,
       pending: true,
       booking: latestBooking,
-      message: 'Booking updated but customer email status is pending. Check again in a moment.'
+      message: 'Booking updated. Customer notification is processing.'
     };
   }
 
@@ -733,7 +804,7 @@
       summary.appendChild(createSummaryRow('Package', booking.package_name));
       summary.appendChild(createSummaryRow('Vehicle', [booking.vehicle_year, booking.vehicle_make, booking.vehicle_model].filter(Boolean).join(' ')));
       summary.appendChild(createSummaryRow('Preferred date', formatDate(booking.preferred_date)));
-      summary.appendChild(createSummaryRow('Preferred time', booking.preferred_time_window));
+      summary.appendChild(createSummaryRow('Preferred arrival window', formatArrivalWindowLabel(booking.preferred_time_window)));
       summary.appendChild(createSummaryRow('Starting price', booking.starting_price == null ? 'Assessment only' : formatCurrency(booking.starting_price)));
       summary.appendChild(createSummaryRow('Submitted', formatDateTime(booking.client_created_at || booking.created_at)));
 
@@ -871,43 +942,36 @@
     appendLinkValueRow(customerSection, 'Email', booking.customer_email, 'mailto:' + booking.customer_email);
     appendLinkValueRow(customerSection, 'Phone', booking.customer_phone, 'tel:' + String(booking.customer_phone || '').replace(/\D/g, ''));
 
-    const serviceLocationSection = document.createElement('section');
-    serviceLocationSection.className = 'admin-detail-section';
-    const serviceLocationHeading = document.createElement('h4');
-    serviceLocationHeading.textContent = 'SERVICE LOCATION';
-    serviceLocationSection.appendChild(serviceLocationHeading);
-
-    const hasNewServiceLocation = [booking.service_street_address, booking.service_city, booking.service_state, booking.service_zip].some(function (value) {
-      return trimText(value) !== '';
-    });
-    const legacyLocation = trimText(booking.city_zip);
-    const mapsAddress = getServiceLocationAddress(booking);
-
-    if (hasNewServiceLocation) {
-      appendTextValueRow(serviceLocationSection, 'Street address', booking.service_street_address);
-      if (trimText(booking.service_unit)) {
-        appendTextValueRow(serviceLocationSection, 'Apartment / Suite', booking.service_unit);
-      }
-      appendTextValueRow(serviceLocationSection, 'City, State ZIP', formatServiceCityStateZip(booking));
-    } else {
-      appendTextValueRow(serviceLocationSection, 'Location', legacyLocation);
-    }
-
+    const customerRequestSection = document.createElement('section');
+    customerRequestSection.className = 'admin-detail-section';
+    const requestHeading = document.createElement('h4');
+    requestHeading.textContent = 'CUSTOMER REQUEST';
+    customerRequestSection.appendChild(requestHeading);
+    appendTextValueRow(customerRequestSection, 'Preferred date', formatDate(booking.preferred_date));
+    appendTextValueRow(customerRequestSection, 'Preferred arrival window', formatArrivalWindowLabel(booking.preferred_time_window));
+    const requestedLocation = document.createElement('p');
+    requestedLocation.className = 'admin-detail-value admin-detail-pre';
+    requestedLocation.textContent = formatServiceLocationDisplay(booking) || '—';
+    customerRequestSection.appendChild(createDetailRow('Requested service location', requestedLocation));
     if (trimText(booking.parking_instructions)) {
-      appendTextValueRow(serviceLocationSection, 'PARKING / ARRIVAL INSTRUCTIONS', booking.parking_instructions);
+      const arrivalNotes = document.createElement('p');
+      arrivalNotes.className = 'admin-detail-value admin-detail-pre';
+      arrivalNotes.textContent = booking.parking_instructions;
+      customerRequestSection.appendChild(createDetailRow('Parking / arrival instructions', arrivalNotes));
     }
 
-    if (mapsAddress) {
+    const mapsHref = buildMapsHref(booking);
+    if (mapsHref) {
       const locationActions = document.createElement('div');
       locationActions.className = 'admin-detail-location-actions';
       const mapsLink = document.createElement('a');
       mapsLink.className = 'button button-small admin-map-button';
-      mapsLink.href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapsAddress);
+      mapsLink.href = mapsHref;
       mapsLink.target = '_blank';
       mapsLink.rel = 'noopener noreferrer';
       mapsLink.textContent = 'OPEN IN MAPS';
       locationActions.appendChild(mapsLink);
-      serviceLocationSection.appendChild(locationActions);
+      customerRequestSection.appendChild(locationActions);
     }
 
     const vehicleSection = document.createElement('section');
@@ -963,8 +1027,7 @@
       booking.confirmed_date,
       booking.confirmed_time,
       booking.final_price,
-      booking.confirmed_location,
-      booking.owner_message
+      booking.confirmed_location
     ].some(function (value) {
       return value != null && String(value).trim() !== '';
     });
@@ -979,25 +1042,20 @@
       appendTextValueRow(confirmationSection, 'Confirmed time', formatReadableTime(booking.confirmed_time));
       appendTextValueRow(confirmationSection, 'Final price', booking.final_price == null ? '—' : formatCurrency(booking.final_price));
       appendTextValueRow(confirmationSection, 'Confirmed location', booking.confirmed_location);
-      const ownerMessage = document.createElement('p');
-      ownerMessage.className = 'admin-detail-value admin-detail-pre';
-      ownerMessage.textContent = booking.owner_message || '—';
-      confirmationSection.appendChild(createDetailRow('Owner message', ownerMessage));
+      if (trimText(booking.owner_message)) {
+        const ownerMessage = document.createElement('p');
+        ownerMessage.className = 'admin-detail-value admin-detail-pre';
+        ownerMessage.textContent = booking.owner_message;
+        confirmationSection.appendChild(createDetailRow('Owner message', ownerMessage));
+      }
       grid.appendChild(confirmationSection);
     }
 
-    const requestSection = document.createElement('section');
-    requestSection.className = 'admin-detail-section';
-    const requestHeading = document.createElement('h4');
-    requestHeading.textContent = 'Request';
-    requestSection.appendChild(requestHeading);
-    appendTextValueRow(requestSection, 'Preferred date', formatDate(booking.preferred_date));
-    appendTextValueRow(requestSection, 'Preferred time window', booking.preferred_time_window);
-    appendTextValueRow(requestSection, 'Interior condition', booking.interior_condition);
+    appendTextValueRow(customerRequestSection, 'Interior condition', booking.interior_condition);
     const notes = document.createElement('p');
     notes.className = 'admin-detail-value admin-detail-pre';
     notes.textContent = booking.customer_notes || '—';
-    requestSection.appendChild(createDetailRow('Customer notes', notes));
+    customerRequestSection.appendChild(createDetailRow('Customer notes', notes));
 
     const auditSection = document.createElement('section');
     auditSection.className = 'admin-detail-section';
@@ -1020,10 +1078,9 @@
 
     grid.appendChild(bookingSection);
     grid.appendChild(customerSection);
-    grid.appendChild(serviceLocationSection);
+    grid.appendChild(customerRequestSection);
     grid.appendChild(vehicleSection);
     grid.appendChild(serviceSection);
-    grid.appendChild(requestSection);
     grid.appendChild(auditSection);
     grid.appendChild(actions);
 
@@ -1301,7 +1358,7 @@
           return;
         }
 
-        setDashboardStatus('Booking updated. Waiting for customer email…', 'info');
+        setDashboardStatus('Booking updated. Customer notification is processing.', 'info');
         const notificationResult = await waitForCustomerNotification(booking.id, nextStatus);
         state.lastActionMessage = notificationResult.message;
         const notificationTone = notificationResult.pending ? 'info' : (notificationResult.ok ? 'success' : 'error');
@@ -1376,7 +1433,7 @@
         return Object.assign({}, item, updatedBooking);
       });
       state.selectedId = String(booking.id);
-      setConfirmationStatus('Booking updated. Waiting for customer email…', 'info');
+      setConfirmationStatus('Booking updated. Customer notification is processing.', 'info');
       const notificationResult = await waitForCustomerNotification(booking.id, 'confirmed');
       state.lastActionMessage = notificationResult.message;
       const notificationTone = notificationResult.pending ? 'info' : (notificationResult.ok ? 'success' : 'error');

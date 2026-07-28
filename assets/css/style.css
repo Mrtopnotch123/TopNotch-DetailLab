@@ -1271,6 +1271,16 @@ details p,
   color: var(--muted);
 }
 
+.booking-arrival-window {
+  display: grid;
+  gap: 8px;
+}
+
+.booking-arrival-window label {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
 .service-location-grid {
   gap: 0 18px;
 }
@@ -1401,6 +1411,31 @@ details p,
 
 .booking-selection-price strong {
   color: #fff;
+}
+
+.booking-selection-details {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.booking-selection-details div {
+  display: grid;
+  gap: 4px;
+}
+
+.booking-selection-details span {
+  color: var(--muted-soft);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.booking-selection-details strong {
+  color: #fff;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
 }
 
 .booking-selection-items {
