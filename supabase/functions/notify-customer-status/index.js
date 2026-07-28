@@ -9,12 +9,16 @@ const PACKAGE_COPY = {
   'build your own reset': 'Your Build Your Own Reset is confirmed with your custom selections in place.'
 };
 
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || 'https://okesvucbkkjgxiqfulqf.supabase.co';
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY') || '';
 const BREVO_SENDER_EMAIL = Deno.env.get('BREVO_SENDER_EMAIL') || 'hello@topnotchdetaillab.com';
 const BREVO_SENDER_NAME = Deno.env.get('BREVO_SENDER_NAME') || BRAND_NAME;
 const WEBHOOK_SECRET = Deno.env.get('WEBHOOK_SECRET') || '';
+
+if (!SUPABASE_URL) {
+  throw new Error('SUPABASE_URL is not configured.');
+}
 
 function jsonResponse(body, status) {
   return new Response(JSON.stringify(body, null, 2), {
@@ -416,7 +420,7 @@ async function supabaseFetch(path, options) {
   let data = null;
   try {
     data = raw ? JSON.parse(raw) : null;
-  } catch (_) {
+  } catch (parseError) {
     data = raw;
   }
 
@@ -503,7 +507,7 @@ async function sendBrevoEmail(email) {
   let data = null;
   try {
     data = raw ? JSON.parse(raw) : null;
-  } catch (_) {
+  } catch (parseError) {
     data = raw;
   }
 

@@ -61,6 +61,8 @@
     { status: 'completed', label: 'MARK COMPLETED' },
     { status: 'cancelled', label: 'CANCEL BOOKING' }
   ];
+  const NOTIFICATION_POLL_TIMEOUT_MS = 15000;
+  const NOTIFICATION_POLL_INTERVAL_MS = 1000;
   const state = {
     client: null,
     bookings: [],
@@ -503,7 +505,7 @@
   }
 
   async function waitForCustomerNotification(bookingId, expectedStatus) {
-    const deadline = Date.now() + 15000;
+    const deadline = Date.now() + NOTIFICATION_POLL_TIMEOUT_MS;
     let latestBooking = null;
 
     while (Date.now() < deadline) {
@@ -527,7 +529,7 @@
       }
 
       await new Promise(function (resolve) {
-        setTimeout(resolve, 1000);
+        setTimeout(resolve, NOTIFICATION_POLL_INTERVAL_MS);
       });
     }
 

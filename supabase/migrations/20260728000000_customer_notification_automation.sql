@@ -30,7 +30,7 @@ set search_path = public, pg_catalog
 as $$
 declare
   webhook_secret text := current_setting('app.settings.topnotch_customer_notification_secret', true);
-  webhook_url text := 'https://okesvucbkkjgxiqfulqf.supabase.co/functions/v1/notify-customer-status';
+  webhook_url text := current_setting('app.settings.topnotch_customer_notification_webhook_url', true);
   payload jsonb;
 begin
   if tg_op <> 'UPDATE' then
@@ -43,6 +43,10 @@ begin
 
   if webhook_secret is null or webhook_secret = '' then
     raise exception 'Missing app.settings.topnotch_customer_notification_secret';
+  end if;
+
+  if webhook_url is null or webhook_url = '' then
+    raise exception 'Missing app.settings.topnotch_customer_notification_webhook_url';
   end if;
 
   payload := jsonb_build_object(
