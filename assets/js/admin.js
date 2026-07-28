@@ -207,13 +207,17 @@
     if (parts.length < 2) return value;
     const hours = Number(parts[0]);
     const minutes = Number(parts[1]);
-    if (!Number.isFinite(hours) || !Number.isFinite(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return value;
+    if (!isValidTime(hours, minutes)) return value;
     const date = new Date();
     date.setHours(hours, minutes, 0, 0);
     return new Intl.DateTimeFormat(undefined, {
       hour: 'numeric',
       minute: '2-digit'
     }).format(date);
+  }
+
+  function isValidTime(hours, minutes) {
+    return Number.isFinite(hours) && Number.isFinite(minutes) && hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59;
   }
 
   function getConfirmedDetailsSource(booking) {
@@ -292,19 +296,21 @@
       missing.push('Confirmed time');
       setFieldError(els.confirmedTime, true);
     }
-    if (!values.finalPrice) {
-      missing.push('Final price');
-      setFieldError(els.finalPrice, true);
-    }
     if (!values.confirmedLocation) {
       missing.push('Confirmed service location');
       setFieldError(els.confirmedLocation, true);
     }
 
-    const price = Number(values.finalPrice);
-    if (values.finalPrice && (!Number.isFinite(price) || price < 0)) {
-      messages.push('Final price must be a valid non-negative number.');
+    let price = null;
+    if (!values.finalPrice) {
+      missing.push('Final price');
       setFieldError(els.finalPrice, true);
+    } else {
+      price = Number(values.finalPrice);
+      if (!Number.isFinite(price) || price < 0) {
+        messages.push('Final price must be a valid non-negative number.');
+        setFieldError(els.finalPrice, true);
+      }
     }
 
     if (missing.length) {
@@ -1146,7 +1152,6 @@
 
     setBusy(true);
     setConfirmationStatus('Saving confirmation details…', 'info');
-    renderDetail();
 
     try {
       const result = await client
