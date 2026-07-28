@@ -1,14 +1,6 @@
 const BRAND_NAME = 'TopNotch DetailLab';
 const TAGLINE = 'Detailing Beyond Expectations';
 const SUPPORTED_STATUSES = new Set(['confirmed', 'more_info_needed', 'declined', 'completed', 'cancelled']);
-const PACKAGE_COPY = {
-  'quick reset': 'Your Quick Reset is locked in and ready for a focused refresh that restores the essentials.',
-  'full reset': 'Your Full Reset is confirmed for a more complete interior revival with elevated care.',
-  'deep reset': 'Your Deep Reset is confirmed and prepared for a thorough, detail-driven transformation.',
-  'recovery reset': 'Your Recovery Reset is confirmed for a careful, assessment-led restoration.',
-  'build your own reset': 'Your Build Your Own Reset is confirmed with your custom selections in place.'
-};
-
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY') || '';
@@ -96,11 +88,6 @@ function formatTime(value) {
   }).format(date);
 }
 
-function buildPackageCopy(packageName) {
-  const key = normalize(packageName);
-  return PACKAGE_COPY[key] || 'Your appointment is confirmed and our team is ready to deliver premium detail work.';
-}
-
 function getReferenceNumber(record) {
   return trimValue(record.reference_number || record.id || '—');
 }
@@ -109,233 +96,391 @@ function getBookingId(record) {
   return trimValue(record.id);
 }
 
+function customerFirstName(record) {
+  const fullName = trimValue(record.customer_name);
+  if (!fullName) return 'there';
+  return fullName.split(/\s+/)[0] || 'there';
+}
+
+function getPackageDisplayName(record, fallback) {
+  return trimValue(record.package_name || fallback || 'TopNotch DetailLab service');
+}
+
+function buildPackageIntro(packageName) {
+  const key = normalize(packageName);
+  if (key === 'quick reset') {
+    return 'Your Quick Reset is locked in and ready for a focused interior refresh that restores the essentials.';
+  }
+  if (key === 'full reset') {
+    return 'Your Full Reset is confirmed. We’re preparing a thorough interior service designed to refresh the main surfaces, glass, and everyday buildup throughout your vehicle.';
+  }
+  if (key === 'deep reset') {
+    return 'Your Deep Reset is confirmed. We’re preparing for a more detailed interior service focused on buildup, tight areas, vents, crevices, and the condition-specific work included in your booking.';
+  }
+  if (key === 'recovery' || key === 'recovery assessment') {
+    return 'Your Recovery service is confirmed based on the scope reviewed. We’ll focus on the severe interior conditions identified and complete the approved work with the care the vehicle requires.';
+  }
+  if (key === 'build your own reset' || key === 'custom' || key === 'build your own') {
+    return 'Your custom TopNotch Reset is confirmed. We’ll complete the services selected and approved for your vehicle based on the confirmed scope.';
+  }
+  return 'Your TopNotch DetailLab appointment is officially confirmed.';
+}
+
+function buildVehicleDisplay(record) {
+  const year = trimValue(record.vehicle_year);
+  const make = trimValue(record.vehicle_make);
+  const model = trimValue(record.vehicle_model);
+  const type = trimValue(record.vehicle_type);
+  const vehicle = [year, make, model].filter(Boolean).join(' ');
+  const description = vehicle || type || '';
+  if (!description) return '';
+  return type && type !== description ? `${description} (${type})` : description;
+}
+
+function formatArrivalWindow(value) {
+  const raw = trimValue(value);
+  const labels = {
+    '8:00 AM-10:00 AM': '8:00 AM–10:00 AM',
+    '10:00 AM-12:00 PM': '10:00 AM–12:00 PM',
+    '12:00 PM-2:00 PM': '12:00 PM–2:00 PM',
+    '2:00 PM-4:00 PM': '2:00 PM–4:00 PM',
+    '4:00 PM-6:00 PM': '4:00 PM–6:00 PM',
+    Flexible: 'Flexible'
+  };
+  if (!raw) return '';
+  return labels[raw] || raw;
+}
+
+function buildServiceLocationLines(record) {
+  const street = trimValue(record.service_street_address);
+  const unit = trimValue(record.service_unit);
+  const city = trimValue(record.service_city);
+  const state = trimValue(record.service_state);
+  const zip = trimValue(record.service_zip);
+  const legacy = trimValue(record.city_zip);
+  if (!street) return legacy ? [legacy] : [];
+  const lines = [street];
+  if (unit) lines.push(unit);
+  if (city || state || zip) {
+    const cityState = [city, state].filter(Boolean).join(', ');
+    const cityStateZip = [cityState, zip].filter(Boolean).join(cityState && zip ? ' ' : '');
+    if (cityStateZip) lines.push(cityStateZip);
+  }
+  return lines.filter(Boolean);
+}
+
+function buildServiceLocationDisplay(record) {
+  const lines = buildServiceLocationLines(record);
+  return lines.length ? lines.join('\n') : '';
+}
+
+function buildConfirmedLocationDisplay(record) {
+  const confirmedLocation = trimValue(record.confirmed_location);
+  return confirmedLocation || buildServiceLocationDisplay(record);
+}
+
+function buildDetailTable(rows) {
+  const filtered = rows.filter(function (row) {
+    return row && row.value !== null && row.value !== undefined && String(row.value).trim() !== '';
+  });
+  if (!filtered.length) return '';
+  return `
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;border-collapse:collapse;margin:20px 0 8px 0;table-layout:fixed;">
+      <tbody>
+        ${filtered.map(function (row) {
+          const value = row.multiline ? String(row.value).split('\n').map(escapeHtml).join('<br>') : escapeHtml(row.value);
+          return `
+            <tr>
+              <td style="padding:12px 12px 12px 0;border-bottom:1px solid #2a2a2a;color:#ff8b91;font-size:12px;line-height:1.3;font-weight:700;letter-spacing:.12em;text-transform:uppercase;vertical-align:top;width:36%;">${escapeHtml(row.label)}</td>
+              <td style="padding:12px 0;border-bottom:1px solid #2a2a2a;color:#ffffff;font-size:15px;line-height:1.6;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;white-space:${row.multiline ? 'pre-line' : 'normal'};">${value}</td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function buildNoteBox(title, message) {
+  const value = trimValue(message);
+  if (!value) return '';
+  return `
+    <div style="margin-top:18px;padding:16px 18px;border:1px solid #3a1216;border-radius:18px;background:#141414;">
+      <div style="margin:0 0 8px 0;color:#ff8b91;font-size:12px;line-height:1.3;font-weight:700;letter-spacing:.12em;text-transform:uppercase;">${escapeHtml(title)}</div>
+      <div style="margin:0;color:#f2f2f2;font-size:15px;line-height:1.6;white-space:pre-line;overflow-wrap:anywhere;">${withLineBreaks(value)}</div>
+    </div>
+  `;
+}
+
+function buildEmailShell(preheader, bodyHtml) {
+  return `
+    <!doctype html>
+    <html>
+      <body style="margin:0;padding:0;background:#090909;color:#f5f5f5;font-family:Arial,Helvetica,sans-serif;">
+        <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(preheader)}</div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;background:#090909;border-collapse:collapse;">
+          <tbody>
+            <tr>
+              <td align="center" style="padding:24px 12px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;max-width:640px;border-collapse:collapse;">
+                  <tbody>
+                    <tr>
+                      <td align="center" style="padding:0 0 16px 0;text-align:center;">
+                        <div style="font-size:12px;line-height:1.3;letter-spacing:.24em;text-transform:uppercase;color:#ff5a5f;font-weight:700;">${escapeHtml(BRAND_NAME)}</div>
+                        <div style="margin-top:8px;font-size:14px;line-height:1.4;color:#d8d8d8;">${escapeHtml(TAGLINE)}</div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div style="background:#111111;border:1px solid #2a2a2a;border-radius:24px;padding:32px 28px;box-shadow:0 20px 60px rgba(0,0,0,.45);">
+                          ${bodyHtml}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td align="center" style="padding:16px 8px 0 8px;text-align:center;color:#8b8b8b;font-size:12px;line-height:1.5;">
+                        <div>${escapeHtml(BRAND_NAME)}</div>
+                        <div>${escapeHtml(TAGLINE)}</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </body>
+    </html>
+  `;
+}
+
 function buildConfirmedEmail(record) {
-  const packageName = trimValue(record.package_name || 'your service');
-  const packageCopy = buildPackageCopy(packageName);
-  const customerName = trimValue(record.customer_name || 'there');
-  const ownerMessage = trimValue(record.owner_message);
+  const packageName = getPackageDisplayName(record, 'TopNotch DetailLab service');
+  const customerName = customerFirstName(record);
   const reference = getReferenceNumber(record);
   const confirmedDate = formatDate(record.confirmed_date || record.preferred_date);
-  const confirmedTime = isPresent(record.confirmed_time) ? formatTime(record.confirmed_time) : trimValue(record.preferred_time_window || '—');
-  const confirmedLocation = trimValue(record.confirmed_location || '—');
-  const finalPrice = money(record.final_price == null ? record.starting_price : record.final_price);
+  const confirmedTime = isPresent(record.confirmed_time) ? formatTime(record.confirmed_time) : '';
+  const serviceLocation = buildConfirmedLocationDisplay(record);
+  const vehicle = buildVehicleDisplay(record);
+  const finalPriceValue = record.final_price == null ? record.starting_price : record.final_price;
+  const finalPrice = isPresent(finalPriceValue) ? money(finalPriceValue) : '';
+  const intro = buildPackageIntro(packageName);
 
-  const text = [
-    `Hi ${customerName},`,
-    '',
-    packageCopy,
-    '',
-    `Reference number: ${reference}`,
-    `Confirmed date: ${confirmedDate}`,
-    `Confirmed time: ${confirmedTime}`,
-    `Confirmed location: ${confirmedLocation}`,
-    `Final price: ${finalPrice}`
+  const detailRows = [
+    { label: 'Reference', value: reference },
+    { label: 'Service', value: packageName },
+    { label: 'Vehicle', value: vehicle },
+    { label: 'Confirmed date', value: confirmedDate },
+    { label: 'Confirmed time', value: confirmedTime },
+    { label: 'Service location', value: serviceLocation, multiline: true },
+    { label: 'Final price', value: finalPrice }
   ];
 
-  if (ownerMessage) {
-    text.push('', `Owner message: ${ownerMessage}`);
-  }
-
-  text.push('', `${BRAND_NAME}`, TAGLINE);
+  const text = [
+    `Hello ${customerName},`,
+    '',
+    intro,
+    '',
+    `Reference: ${reference}`,
+    `Service: ${packageName}`,
+    vehicle ? `Vehicle: ${vehicle}` : null,
+    confirmedDate ? `Confirmed date: ${confirmedDate}` : null,
+    confirmedTime ? `Confirmed time: ${confirmedTime}` : null,
+    serviceLocation ? `Service location:\n${serviceLocation}` : null,
+    finalPrice ? `Final price: ${finalPrice}` : null,
+    '',
+    'Please review your appointment details carefully. If anything needs to be corrected, reply to this email as soon as possible.',
+    '',
+    'Your appointment is now reserved. We look forward to delivering interior care that goes beyond expectations.',
+    '',
+    BRAND_NAME,
+    TAGLINE
+  ].filter(Boolean);
 
   return {
     subject: `${BRAND_NAME}: your ${packageName} is confirmed`,
-    preheader: `${packageName} appointment confirmed for ${confirmedDate}.`,
+    preheader: `${packageName} appointment confirmed for ${confirmedDate || 'your requested date'}.`,
     text: text.join('\n'),
-    html: `
-      <div class="card">
-        <p class="eyebrow">Appointment confirmed</p>
-        <h1>Hello ${escapeHtml(customerName)},</h1>
-        <p>${escapeHtml(packageCopy)}</p>
-        <div class="highlight">
-          <div class="highlight-label">Reference number</div>
-          <div class="highlight-value">${escapeHtml(reference)}</div>
-        </div>
-        <div class="details">
-          <div class="row"><span>Date</span><strong>${escapeHtml(confirmedDate)}</strong></div>
-          <div class="row"><span>Time</span><strong>${escapeHtml(confirmedTime)}</strong></div>
-          <div class="row"><span>Location</span><strong>${escapeHtml(confirmedLocation)}</strong></div>
-          <div class="row"><span>Final price</span><strong>${escapeHtml(finalPrice)}</strong></div>
-        </div>
-        ${
-          ownerMessage
-            ? `<div class="note"><strong>Owner message</strong><p>${withLineBreaks(ownerMessage)}</p></div>`
-            : ''
-        }
-      </div>
-    `
+    html: buildEmailShell(
+      `${packageName} appointment confirmed.`,
+      `
+        <div style="margin:0 0 12px 0;color:#ff5a5f;font-size:11px;line-height:1.3;font-weight:700;letter-spacing:.18em;text-transform:uppercase;">Appointment confirmed</div>
+        <h1 style="margin:0 0 16px 0;color:#ffffff;font-size:32px;line-height:1.05;">Hello ${escapeHtml(customerName)},</h1>
+        <p style="margin:0 0 16px 0;color:#e7e7e7;font-size:16px;line-height:1.6;">${escapeHtml(intro)}</p>
+        ${buildDetailTable(detailRows)}
+        <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">Please review your appointment details carefully. If anything needs to be corrected, reply to this email as soon as possible.</p>
+        <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">Your appointment is now reserved. We look forward to delivering interior care that goes beyond expectations.</p>
+      `
+    )
   };
 }
 
 function buildMoreInfoEmail(record) {
-  const customerName = trimValue(record.customer_name || 'there');
+  const customerName = customerFirstName(record);
   const reference = getReferenceNumber(record);
-  const ownerMessage = trimValue(record.owner_message);
+  const note = trimValue(record.status_message || record.owner_message);
 
   const text = [
-    `Hi ${customerName},`,
+    `Hello ${customerName},`,
     '',
-    'We just need one more thing before we can confirm your appointment.',
-    `Reference number: ${reference}`
-  ];
-
-  if (ownerMessage) {
-    text.push('', ownerMessage);
-  }
-
-  text.push('', `${BRAND_NAME}`, TAGLINE);
+    'We’ve reviewed your booking request and need one more detail before we can confirm your appointment.',
+    note ? `What we need from you:\n${note}` : null,
+    '',
+    'Reply directly to this email with the requested information. Your appointment is still pending and has not been confirmed.',
+    '',
+    BRAND_NAME,
+    TAGLINE
+  ].filter(Boolean);
 
   return {
     subject: `${BRAND_NAME}: one more detail needed`,
     preheader: 'We need one more detail before confirming your appointment.',
     text: text.join('\n'),
-    html: `
-      <div class="card">
-        <p class="eyebrow">More information needed</p>
-        <h1>Hello ${escapeHtml(customerName)},</h1>
-        <p>We just need one more thing before we can confirm your appointment.</p>
-        <div class="highlight">
-          <div class="highlight-label">Reference number</div>
-          <div class="highlight-value">${escapeHtml(reference)}</div>
-        </div>
-        ${
-          ownerMessage
-            ? `<div class="note"><strong>Owner message</strong><p>${withLineBreaks(ownerMessage)}</p></div>`
-            : ''
-        }
-      </div>
-    `
+    html: buildEmailShell(
+      'We need one more detail before confirming your appointment.',
+      `
+        <div style="margin:0 0 12px 0;color:#ff5a5f;font-size:11px;line-height:1.3;font-weight:700;letter-spacing:.18em;text-transform:uppercase;">More information needed</div>
+        <h1 style="margin:0 0 16px 0;color:#ffffff;font-size:32px;line-height:1.05;">Hello ${escapeHtml(customerName)},</h1>
+        <p style="margin:0 0 16px 0;color:#e7e7e7;font-size:16px;line-height:1.6;">We’ve reviewed your booking request and need one more detail before we can confirm your appointment.</p>
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;border-collapse:collapse;margin:20px 0 8px 0;table-layout:fixed;">
+          <tbody>
+            <tr>
+              <td style="padding:12px 12px 12px 0;border-bottom:1px solid #2a2a2a;color:#ff8b91;font-size:12px;line-height:1.3;font-weight:700;letter-spacing:.12em;text-transform:uppercase;vertical-align:top;width:36%;">Reference</td>
+              <td style="padding:12px 0;border-bottom:1px solid #2a2a2a;color:#ffffff;font-size:15px;line-height:1.6;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">${escapeHtml(reference)}</td>
+            </tr>
+          </tbody>
+        </table>
+        ${note ? buildNoteBox('WHAT WE NEED FROM YOU', note) : ''}
+        <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">Reply directly to this email with the requested information. Your appointment is still pending and has not been confirmed.</p>
+      `
+    )
   };
 }
 
 function buildDeclinedEmail(record) {
-  const customerName = trimValue(record.customer_name || 'there');
+  const customerName = customerFirstName(record);
   const reference = getReferenceNumber(record);
-  const ownerMessage = trimValue(record.owner_message);
-  const packageName = trimValue(record.package_name || 'your booking');
+  const packageName = getPackageDisplayName(record, 'your request');
+  const ownerReason = trimValue(record.status_message || record.owner_message);
 
   const text = [
-    `Hi ${customerName},`,
+    `Hello ${customerName},`,
     '',
-    `Thanks for reaching out about ${packageName}.`,
-    `Reference number: ${reference}`,
-    'If you’d like more context, please reply and we’ll be happy to help.'
-  ];
-
-  if (ownerMessage) {
-    text.push('', ownerMessage);
-  }
-
-  text.push('', `${BRAND_NAME}`, TAGLINE);
+    'Thank you for considering TopNotch DetailLab.',
+    '',
+    'After reviewing your request, we’re unable to accept or schedule this particular service at this time.',
+    ownerReason ? `Reason:\n${ownerReason}` : null,
+    '',
+    'Your appointment was not confirmed, and no payment has been collected.',
+    '',
+    'We appreciate the opportunity to review your request and hope we may be able to serve you another time.',
+    '',
+    BRAND_NAME,
+    TAGLINE
+  ].filter(Boolean);
 
   return {
-    subject: `${BRAND_NAME}: update on your booking`,
-    preheader: 'Your booking has been declined.',
+    subject: `Update on your TopNotch DetailLab request`,
+    preheader: 'Your request has been declined.',
     text: text.join('\n'),
-    html: `
-      <div class="card">
-        <p class="eyebrow">Booking update</p>
-        <h1>Hello ${escapeHtml(customerName)},</h1>
-        <p>Thanks for reaching out about ${escapeHtml(packageName)}. At this time, we’re not able to move forward with the booking.</p>
-        <p>If you’d like more context, please reply and we’ll be happy to help.</p>
-        <div class="highlight">
-          <div class="highlight-label">Reference number</div>
-          <div class="highlight-value">${escapeHtml(reference)}</div>
-        </div>
-        ${
-          ownerMessage
-            ? `<div class="note"><strong>Owner message</strong><p>${withLineBreaks(ownerMessage)}</p></div>`
-            : ''
-        }
-      </div>
-    `
+    html: buildEmailShell(
+      'Your request has been declined.',
+      `
+        <div style="margin:0 0 12px 0;color:#ff5a5f;font-size:11px;line-height:1.3;font-weight:700;letter-spacing:.18em;text-transform:uppercase;">Booking update</div>
+        <h1 style="margin:0 0 16px 0;color:#ffffff;font-size:32px;line-height:1.05;">Hello ${escapeHtml(customerName)},</h1>
+        <p style="margin:0 0 16px 0;color:#e7e7e7;font-size:16px;line-height:1.6;">Thank you for considering TopNotch DetailLab.</p>
+        <p style="margin:0 0 16px 0;color:#e7e7e7;font-size:16px;line-height:1.6;">After reviewing your request, we’re unable to accept or schedule this particular service at this time.</p>
+        ${buildDetailTable([{ label: 'Reference', value: reference }, { label: 'Service', value: packageName }])}
+        ${ownerReason ? buildNoteBox('Owner reason', ownerReason) : ''}
+        <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">Your appointment was not confirmed, and no payment has been collected.</p>
+        <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">We appreciate the opportunity to review your request and hope we may be able to serve you another time.</p>
+      `
+    )
   };
 }
 
 function buildCompletedEmail(record) {
-  const customerName = trimValue(record.customer_name || 'there');
+  const customerName = customerFirstName(record);
   const reference = getReferenceNumber(record);
-  const packageName = trimValue(record.package_name || 'your service');
-  const ownerMessage = trimValue(record.owner_message);
+  const packageName = getPackageDisplayName(record, 'TopNotch DetailLab service');
 
   const text = [
-    `Hi ${customerName},`,
+    `Hello ${customerName},`,
     '',
-    `Your ${packageName} is complete. Thank you for choosing ${BRAND_NAME}.`,
+    `Your ${packageName} has been marked complete.`,
+    '',
     `Reference number: ${reference}`,
     '',
-    'We’d love to care for your vehicle again whenever you need a future reset.'
+    'Thank you for trusting TopNotch DetailLab with your vehicle’s interior.',
+    'We hope the finished result didn’t just meet expectations—it went beyond them.',
+    '',
+    'Your support means a great deal as TopNotch DetailLab continues to grow, and we would be honored to care for your vehicle again.',
+    '',
+    BRAND_NAME,
+    TAGLINE
   ];
 
-  if (ownerMessage) {
-    text.push('', ownerMessage);
-  }
-
-  text.push('', `${BRAND_NAME}`, TAGLINE);
-
   return {
-    subject: `${BRAND_NAME}: your ${packageName} is complete`,
-    preheader: `Your service is complete. Thank you for choosing ${BRAND_NAME}.`,
+    subject: 'Your TopNotch DetailLab service is complete',
+    preheader: `${packageName} has been marked complete.`,
     text: text.join('\n'),
-    html: `
-      <div class="card">
-        <p class="eyebrow">Service complete</p>
-        <h1>Hello ${escapeHtml(customerName)},</h1>
-        <p>Your ${escapeHtml(packageName)} is complete. Thank you for choosing ${escapeHtml(BRAND_NAME)}.</p>
-        <div class="highlight">
-          <div class="highlight-label">Reference number</div>
-          <div class="highlight-value">${escapeHtml(reference)}</div>
-        </div>
-        <p>We’d love to care for your vehicle again whenever you need a future reset.</p>
-        ${
-          ownerMessage
-            ? `<div class="note"><strong>Owner message</strong><p>${withLineBreaks(ownerMessage)}</p></div>`
-            : ''
-        }
-      </div>
-    `
+    html: buildEmailShell(
+      'Your service is complete.',
+      `
+        <div style="margin:0 0 12px 0;color:#ff5a5f;font-size:11px;line-height:1.3;font-weight:700;letter-spacing:.18em;text-transform:uppercase;">Service complete</div>
+        <h1 style="margin:0 0 16px 0;color:#ffffff;font-size:32px;line-height:1.05;">Hello ${escapeHtml(customerName)},</h1>
+        <p style="margin:0 0 16px 0;color:#e7e7e7;font-size:16px;line-height:1.6;">Your ${escapeHtml(packageName)} has been marked complete.</p>
+        ${buildDetailTable([{ label: 'Reference', value: reference }, { label: 'Service', value: packageName }])}
+        <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">Thank you for trusting TopNotch DetailLab with your vehicle’s interior.</p>
+        <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">We hope the finished result didn’t just meet expectations—it went beyond them.</p>
+        <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">Your support means a great deal as TopNotch DetailLab continues to grow, and we would be honored to care for your vehicle again.</p>
+      `
+    )
   };
 }
 
 function buildCancelledEmail(record) {
-  const customerName = trimValue(record.customer_name || 'there');
+  const customerName = customerFirstName(record);
   const reference = getReferenceNumber(record);
-  const ownerMessage = trimValue(record.owner_message);
-  const packageName = trimValue(record.package_name || 'your booking');
+  const packageName = getPackageDisplayName(record, 'TopNotch DetailLab appointment');
+  const ownerReason = trimValue(record.status_message || record.owner_message);
+  const confirmedDate = formatDate(record.confirmed_date);
+  const confirmedTime = isPresent(record.confirmed_time) ? formatTime(record.confirmed_time) : '';
 
   const text = [
-    `Hi ${customerName},`,
+    `Hello ${customerName},`,
     '',
-    `Your ${packageName} has been cancelled.`,
-    `Reference number: ${reference}`
-  ];
-
-  if (ownerMessage) {
-    text.push('', ownerMessage);
-  }
-
-  text.push('', `${BRAND_NAME}`, TAGLINE);
+    'Your TopNotch DetailLab appointment has been cancelled and is no longer scheduled.',
+    confirmedDate ? `Confirmed date: ${confirmedDate}` : null,
+    confirmedTime ? `Confirmed time: ${confirmedTime}` : null,
+    ownerReason ? `Reason:\n${ownerReason}` : null,
+    '',
+    'No further action is required. When you’re ready, you’re welcome to submit a new booking request through the TopNotch DetailLab website.',
+    '',
+    BRAND_NAME,
+    TAGLINE
+  ].filter(Boolean);
 
   return {
-    subject: `${BRAND_NAME}: your booking has been cancelled`,
+    subject: 'Your TopNotch DetailLab appointment has been cancelled',
     preheader: 'Your appointment has been cancelled.',
     text: text.join('\n'),
-    html: `
-      <div class="card">
-        <p class="eyebrow">Appointment cancelled</p>
-        <h1>Hello ${escapeHtml(customerName)},</h1>
-        <p>Your ${escapeHtml(packageName)} has been cancelled.</p>
-        <div class="highlight">
-          <div class="highlight-label">Reference number</div>
-          <div class="highlight-value">${escapeHtml(reference)}</div>
-        </div>
-        ${
-          ownerMessage
-            ? `<div class="note"><strong>Owner message</strong><p>${withLineBreaks(ownerMessage)}</p></div>`
-            : ''
-        }
-      </div>
-    `
+    html: buildEmailShell(
+      'Your appointment has been cancelled.',
+      `
+        <div style="margin:0 0 12px 0;color:#ff5a5f;font-size:11px;line-height:1.3;font-weight:700;letter-spacing:.18em;text-transform:uppercase;">Appointment cancelled</div>
+        <h1 style="margin:0 0 16px 0;color:#ffffff;font-size:32px;line-height:1.05;">Hello ${escapeHtml(customerName)},</h1>
+        <p style="margin:0 0 16px 0;color:#e7e7e7;font-size:16px;line-height:1.6;">Your TopNotch DetailLab appointment has been cancelled and is no longer scheduled.</p>
+        ${buildDetailTable([
+          { label: 'Reference', value: reference },
+          { label: 'Service', value: packageName },
+          { label: 'Confirmed date', value: confirmedDate },
+          { label: 'Confirmed time', value: confirmedTime }
+        ])}
+        ${ownerReason ? buildNoteBox('Owner explanation', ownerReason) : ''}
+        <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">No further action is required. When you’re ready, you’re welcome to submit a new booking request through the TopNotch DetailLab website.</p>
+      `
+    )
   };
 }
 
@@ -347,64 +492,6 @@ function buildEmailPayload(record) {
   if (status === 'completed') return buildCompletedEmail(record);
   if (status === 'cancelled') return buildCancelledEmail(record);
   return null;
-}
-
-function layout(subject, preheader, bodyHtml) {
-  return `
-    <!doctype html>
-    <html>
-      <body style="margin:0;background:#090909;color:#f5f5f5;font-family:Arial,Helvetica,sans-serif;">
-        <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(preheader || subject)}</div>
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#090909;padding:24px 0;">
-          <tr>
-            <td align="center">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;margin:0 auto;padding:0 16px;">
-                <tr>
-                  <td style="padding:0 0 16px 0;text-align:center;">
-                    <div style="font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#ff5a5f;">${escapeHtml(BRAND_NAME)}</div>
-                    <div style="font-size:14px;color:#d8d8d8;margin-top:8px;">${escapeHtml(TAGLINE)}</div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div style="background:#111111;border:1px solid #2a2a2a;border-radius:24px;padding:32px 28px;box-shadow:0 20px 60px rgba(0,0,0,.45);">
-                      ${bodyHtml}
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:16px 8px 0 8px;text-align:center;color:#8b8b8b;font-size:12px;line-height:1.5;">
-                    <div>${escapeHtml(BRAND_NAME)}</div>
-                    <div>${escapeHtml(TAGLINE)}</div>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-        </table>
-        <style>
-          @media (max-width: 600px) {
-            .card { padding: 0 !important; }
-            .details { gap: 10px !important; }
-            .details .row { padding: 14px 0 !important; }
-          }
-          h1 { margin: 0 0 16px 0; font-size: 32px; line-height: 1.05; color: #ffffff; }
-          p { margin: 0 0 16px 0; color: #e7e7e7; font-size: 16px; line-height: 1.6; }
-          .eyebrow { margin: 0 0 12px 0; color: #ff5a5f; text-transform: uppercase; letter-spacing: .18em; font-size: 11px; font-weight: 700; }
-          .highlight { background: linear-gradient(180deg, #181818, #101010); border: 1px solid #3a1216; border-left: 4px solid #ff3d47; border-radius: 18px; padding: 18px 20px; margin: 24px 0; }
-          .highlight-label { color: #ff8b91; text-transform: uppercase; letter-spacing: .12em; font-size: 11px; margin-bottom: 6px; }
-          .highlight-value { color: #ffffff; font-size: 18px; font-weight: 700; }
-          .details { display: grid; gap: 12px; margin: 24px 0; }
-          .details .row { display: flex; justify-content: space-between; gap: 18px; padding: 14px 0; border-bottom: 1px solid #262626; }
-          .details .row span { color: #ababab; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
-          .details .row strong { color: #ffffff; font-size: 15px; text-align: right; }
-          .note { margin-top: 24px; padding: 18px 20px; background:#141414; border:1px solid #272727; border-radius:18px; }
-          .note strong { display:block; color:#ff8b91; margin-bottom:10px; font-size:12px; letter-spacing:.12em; text-transform:uppercase; }
-          .note p { margin: 0; }
-        </style>
-      </body>
-    </html>
-  `;
 }
 
 async function supabaseFetch(path, options) {
@@ -536,7 +623,7 @@ function buildBrevoEmail(record) {
   const customerName = trimValue(record.customer_name || 'there');
   const customerEmail = trimValue(record.customer_email);
   const subject = template.subject;
-  const htmlContent = layout(subject, template.preheader, template.html);
+  const htmlContent = template.html;
   const textContent = template.text;
 
   return {

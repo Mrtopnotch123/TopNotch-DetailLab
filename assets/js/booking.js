@@ -15,6 +15,17 @@
   const PENDING_KEY = 'topnotchPendingRequest';
   const DRAFT_KEY = 'topnotchBookingDraft';
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ARRIVAL_WINDOW_LABELS = {
+    '8:00 AM-10:00 AM': '8:00 AM–10:00 AM',
+    '10:00 AM-12:00 PM': '10:00 AM–12:00 PM',
+    '12:00 PM-2:00 PM': '12:00 PM–2:00 PM',
+    '2:00 PM-4:00 PM': '2:00 PM–4:00 PM',
+    '4:00 PM-6:00 PM': '4:00 PM–6:00 PM',
+    Flexible: 'Flexible',
+    Morning: 'Morning',
+    Afternoon: 'Afternoon',
+    Evening: 'Evening'
+  };
 
   let supabaseClient = null;
 
@@ -102,6 +113,66 @@
     return '(' + digits.slice(0, 3) + ') ' + digits.slice(3, 6) + '-' + digits.slice(6);
   }
 
+  function getInputValue(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }
+
+  function normalizeArrivalWindowValue(value) {
+    const raw = String(value == null ? '' : value).trim();
+    if (!raw) return '';
+    const matches = Object.keys(ARRIVAL_WINDOW_LABELS).filter(function (key) {
+      return key.toLowerCase() === raw.toLowerCase();
+    });
+    if (matches.length) return matches[0];
+    const legacyAliases = {
+      morning: '8:00 AM-10:00 AM',
+      afternoon: '12:00 PM-2:00 PM',
+      evening: '4:00 PM-6:00 PM'
+    };
+    const alias = legacyAliases[raw.toLowerCase()];
+    if (alias) return alias;
+    const labelMatch = Object.keys(ARRIVAL_WINDOW_LABELS).find(function (key) {
+      return ARRIVAL_WINDOW_LABELS[key].toLowerCase() === raw.toLowerCase();
+    });
+    return labelMatch || raw;
+  }
+
+  function formatArrivalWindowLabel(value) {
+    const normalized = normalizeArrivalWindowValue(value);
+    return ARRIVAL_WINDOW_LABELS[normalized] || normalized || '—';
+  }
+
+  function formatVehicleSummary() {
+    const year = getInputValue('vehicleYear');
+    const make = getInputValue('vehicleMake');
+    const model = getInputValue('vehicleModel');
+    const type = getInputValue('vehicleType');
+    const vehicle = [year, make, model].filter(Boolean).join(' ');
+    if (!vehicle && !type) return '—';
+    if (!vehicle) return type;
+    return type ? vehicle + ' · ' + type : vehicle;
+  }
+
+  function formatServiceLocationSummary() {
+    const street = getInputValue('serviceStreetAddress');
+    const unit = getInputValue('serviceUnit');
+    const city = getInputValue('serviceCity');
+    const state = getInputValue('serviceState');
+    const zip = getInputValue('serviceZip');
+    const lines = [];
+
+    if (street) lines.push(street);
+    if (unit) lines.push(unit);
+    if (city || state || zip) {
+      const cityState = [city, state].filter(Boolean).join(', ');
+      const cityStateZip = [cityState, zip].filter(Boolean).join(cityState && zip ? ' ' : '');
+      if (cityStateZip) lines.push(cityStateZip);
+    }
+
+    return lines.length ? lines.join('\n') : '—';
+  }
+
   function selectionMeta(selection) {
     if (!selection) return '';
     if (selection.assessmentRequired) return 'Custom Assessment';
@@ -126,6 +197,10 @@
       const summaryWrap = document.querySelector('.booking-selection-summary');
       const titleEl = document.getElementById('bookingSelectionTitle');
       const priceEl = document.getElementById('bookingSelectionPrice');
+      const vehicleEl = document.getElementById('bookingSelectionVehicle');
+      const dateEl = document.getElementById('bookingSelectionDate');
+      const windowEl = document.getElementById('bookingSelectionWindow');
+      const locationEl = document.getElementById('bookingSelectionLocation');
       const itemsEl = document.getElementById('bookingSelectionItems');
       const photoReqEl = document.getElementById('photoRequirement');
       const noSelectionWrap = document.querySelector('.booking-no-selection');
@@ -176,6 +251,16 @@
         if (submitButton) submitButton.disabled = false;
         if (titleEl) titleEl.textContent = selection.package;
         if (priceEl) priceEl.textContent = selectionMeta(selection);
+        if (vehicleEl) vehicleEl.textContent = formatVehicleSummary();
+        if (dateEl) {
+          const preferredDate = fieldValue('preferredDate');
+          dateEl.textContent = preferredDate ? formatDisplayDate(preferredDate) : '—';
+        }
+        if (windowEl) {
+          const preferredWindow = fieldValue('preferredTimeWindow');
+          windowEl.textContent = preferredWindow ? formatArrivalWindowLabel(preferredWindow) : '—';
+        }
+        if (locationEl) locationEl.textContent = formatServiceLocationSummary();
 
         if (itemsEl) {
           itemsEl.innerHTML = '';
@@ -256,7 +341,7 @@
           serviceZip: 'ZIP code',
           parkingInstructions: 'Parking instructions / gate code',
           preferredDate: 'Preferred date',
-          preferredTimeWindow: 'Preferred time window',
+          preferredTimeWindow: 'Preferred arrival window',
           condition: 'Interior condition',
           bookingConsent: 'Booking acknowledgment'
         };
@@ -303,7 +388,7 @@
           if (picked > maxDate) return 'Please choose a date within the next 180 days.';
         }
         if (field.id === 'preferredTimeWindow') {
-          if (['Morning', 'Afternoon', 'Evening', 'Flexible'].indexOf(value) === -1) return 'Please choose a valid time window.';
+          if (['8:00 AM-10:00 AM', '10:00 AM-12:00 PM', '12:00 PM-2:00 PM', '2:00 PM-4:00 PM', '4:00 PM-6:00 PM', 'Flexible', 'Morning', 'Afternoon', 'Evening'].indexOf(value) === -1) return 'Please choose a valid arrival window.';
         }
         return '';
       }
@@ -373,7 +458,10 @@
           const field = document.getElementById(id);
           if (!field) return;
           if (field.type === 'checkbox') field.checked = !!draft[id];
-          else if (typeof draft[id] === 'string') field.value = draft[id];
+          else if (typeof draft[id] === 'string') {
+            if (id === 'preferredTimeWindow') field.value = normalizeArrivalWindowValue(draft[id]);
+            else field.value = draft[id];
+          }
         });
       }
 
@@ -458,7 +546,7 @@
             parking_instructions: fieldValue('parkingInstructions').trim() || null,
             city_zip: fieldValue('serviceCity').trim() + ', ' + fieldValue('serviceState').trim() + ' ' + fieldValue('serviceZip').trim(),
             preferred_date: fieldValue('preferredDate'),
-            preferred_time_window: fieldValue('preferredTimeWindow'),
+            preferred_time_window: normalizeArrivalWindowValue(fieldValue('preferredTimeWindow')),
             interior_condition: fieldValue('condition'),
             customer_notes: fieldValue('notes') || null,
             selection_mode: selection.mode || 'preset',
@@ -535,6 +623,7 @@
           if (field.dataset.touched === 'true' || field.value.trim()) validateField(field, true);
           else if (field.type !== 'checkbox') setFieldMessage(field, '');
           saveDraft();
+          renderSelection();
           updateFormProgress();
         });
         field.addEventListener('change', function () {
@@ -542,6 +631,7 @@
           if (field.id === 'customerPhone' && !validationMessage(field)) field.value = formatPhone(field.value);
           validateField(field, true);
           saveDraft();
+          renderSelection();
           updateFormProgress();
         });
         field.addEventListener('blur', function () {
@@ -549,6 +639,7 @@
           if (field.id === 'customerPhone' && !validationMessage(field)) field.value = formatPhone(field.value);
           validateField(field, true);
           saveDraft();
+          renderSelection();
           updateFormProgress();
         });
       });
