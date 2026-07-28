@@ -21,4 +21,4 @@ check (
   )
 );
 
-notify pgrst, 'reload schema';
+NOTIFY pgrst, 'reload schema';

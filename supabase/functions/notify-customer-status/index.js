@@ -108,6 +108,7 @@ function getPackageDisplayName(record, fallback) {
 
 function buildPackageIntro(packageName) {
   const key = normalize(packageName);
+  // Booking records may contain either the current "Recovery" name or the older "Recovery Assessment" label.
   if (key === 'quick reset') {
     return 'Your Quick Reset is locked in and ready for a focused interior refresh that restores the essentials.';
   }
@@ -391,7 +392,7 @@ function buildDeclinedEmail(record) {
         <p style="margin:0 0 16px 0;color:#e7e7e7;font-size:16px;line-height:1.6;">Thank you for considering TopNotch DetailLab.</p>
         <p style="margin:0 0 16px 0;color:#e7e7e7;font-size:16px;line-height:1.6;">After reviewing your request, we’re unable to accept or schedule this particular service at this time.</p>
         ${buildDetailTable([{ label: 'Reference', value: reference }, { label: 'Service', value: packageName }])}
-        ${ownerReason ? buildNoteBox('Owner reason', ownerReason) : ''}
+        ${ownerReason ? buildNoteBox('Owner explanation', ownerReason) : ''}
         <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">Your appointment was not confirmed, and no payment has been collected.</p>
         <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">We appreciate the opportunity to review your request and hope we may be able to serve you another time.</p>
       `

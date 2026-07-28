@@ -322,6 +322,7 @@
         message: error
       };
     }
+    // Treat the send as successful only after the webhook writes both the current status and a timestamp.
     if (notifiedStatus && notifiedAt) {
       return {
         state: 'success',

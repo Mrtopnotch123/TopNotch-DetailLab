@@ -388,7 +388,7 @@
           if (picked > maxDate) return 'Please choose a date within the next 180 days.';
         }
         if (field.id === 'preferredTimeWindow') {
-          if (['8:00 AM-10:00 AM', '10:00 AM-12:00 PM', '12:00 PM-2:00 PM', '2:00 PM-4:00 PM', '4:00 PM-6:00 PM', 'Flexible', 'Morning', 'Afternoon', 'Evening'].indexOf(value) === -1) return 'Please choose a valid arrival window.';
+          if (Object.keys(ARRIVAL_WINDOW_LABELS).indexOf(value) === -1) return 'Please choose a valid arrival window.';
         }
         return '';
       }
