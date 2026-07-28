@@ -313,7 +313,6 @@
 
   function getNotificationState(booking) {
     const error = String(booking.customer_notification_error || '').trim();
-    const notifiedStatus = normalize(booking.customer_notified_status);
     if (error) {
       return {
         state: 'failed',
@@ -321,8 +320,7 @@
         message: error
       };
     }
-    // Treat the send as successful only after notify-customer-status writes both the current status and a timestamp.
-    if (notifiedStatus && hasNotificationTimestamp(booking)) {
+    if (isNotificationComplete(booking, booking.customer_notified_status)) {
       return {
         state: 'success',
         label: 'Customer successfully notified',
@@ -336,8 +334,8 @@
     };
   }
 
-  function hasNotificationTimestamp(booking) {
-    return String(booking && booking.customer_notified_at ? booking.customer_notified_at : '').trim() !== '';
+  function isNotificationComplete(booking, expectedStatus) {
+    return normalize(booking && booking.customer_notified_status) === normalize(expectedStatus) && String(booking && booking.customer_notified_at ? booking.customer_notified_at : '').trim() !== '';
   }
 
   function getConfirmationDefaults(booking) {

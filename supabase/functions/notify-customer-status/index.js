@@ -1,6 +1,7 @@
 const BRAND_NAME = 'TopNotch DetailLab';
 const TAGLINE = 'Detailing Beyond Expectations';
 const SUPPORTED_STATUSES = new Set(['confirmed', 'more_info_needed', 'declined', 'completed', 'cancelled']);
+const RECOVERY_PACKAGE_KEYS = new Set(['recovery', 'recovery assessment']);
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY') || '';
@@ -118,13 +119,18 @@ function buildPackageIntro(packageName) {
   if (key === 'deep reset') {
     return 'Your Deep Reset is confirmed. We’re preparing for a more detailed interior service focused on buildup, tight areas, vents, crevices, and the condition-specific work included in your booking.';
   }
-  if (key === 'recovery' || key === 'recovery assessment') {
+  if (RECOVERY_PACKAGE_KEYS.has(key)) {
     return 'Your Recovery service is confirmed based on the scope reviewed. We’ll focus on the severe interior conditions identified and complete the approved work with the care the vehicle requires.';
   }
   if (key === 'build your own reset' || key === 'custom' || key === 'build your own') {
     return 'Your custom TopNotch Reset is confirmed. We’ll complete the services selected and approved for your vehicle based on the confirmed scope.';
   }
   return 'Your TopNotch DetailLab appointment is officially confirmed.';
+}
+
+function formatDetailTableValue(row) {
+  if (!row.multiline) return escapeHtml(row.value);
+  return String(row.value).split('\n').map(escapeHtml).join('<br>');
 }
 
 function buildVehicleDisplay(record) {
@@ -189,7 +195,7 @@ function buildDetailTable(rows) {
     <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;border-collapse:collapse;margin:20px 0 8px 0;table-layout:fixed;">
       <tbody>
         ${filtered.map(function (row) {
-          const value = row.multiline ? String(row.value).split('\n').map(escapeHtml).join('<br>') : escapeHtml(row.value);
+          const value = formatDetailTableValue(row);
           return `
             <tr>
               <td style="padding:12px 12px 12px 0;border-bottom:1px solid #2a2a2a;color:#ff8b91;font-size:12px;line-height:1.3;font-weight:700;letter-spacing:.12em;text-transform:uppercase;vertical-align:top;width:36%;">${escapeHtml(row.label)}</td>
