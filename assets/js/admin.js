@@ -231,7 +231,7 @@
   }
 
   function getConfirmationDefaults(booking) {
-    const values = getConfirmedDetailsSource(booking);
+    const values = Object.assign({}, getConfirmedDetailsSource(booking));
     if (!values.confirmed_date && booking.preferred_date) {
       values.confirmed_date = booking.preferred_date;
     }
@@ -1181,13 +1181,12 @@
         return Object.assign({}, item, updatedBooking);
       });
       state.selectedId = String(booking.id);
-      // Customer email automation is intentionally not connected yet.
+      // TODO: Wire customer email automation in a follow-up task.
       state.lastActionMessage = 'Appointment confirmed in the dashboard. Customer email automation is not connected yet.';
       setDashboardStatus(state.lastActionMessage, 'success');
       closeConfirmation();
       renderBookings();
       highlightActiveBooking(state.selectedId);
-      renderDetail();
     } catch (error) {
       console.error('Booking confirmation error', error);
       setConfirmationStatus('Couldn’t confirm booking. ' + (error && error.message ? error.message : 'Unknown error.'), 'error');
