@@ -20,6 +20,11 @@
     'selection_mode',
     'package_name',
     'starting_price',
+    'confirmed_date',
+    'confirmed_time',
+    'final_price',
+    'confirmed_location',
+    'owner_message',
     'selected_services',
     'assessment_required',
     'photo_status',
@@ -55,6 +60,7 @@
     client: null,
     bookings: [],
     selectedId: null,
+    confirmationBookingId: null,
     filter: 'new',
     search: '',
     loading: false,
@@ -90,6 +96,19 @@
     els.detailContent = getEl('adminDetailContent');
     els.detailTitle = getEl('adminDetailTitle');
     els.closeDetail = getEl('adminCloseDetail');
+    els.confirmationPanel = getEl('adminConfirmationPanel');
+    els.confirmationForm = getEl('adminConfirmationForm');
+    els.confirmationStatus = getEl('adminConfirmationStatus');
+    els.confirmationTitle = getEl('adminConfirmationTitle');
+    els.confirmationSubtitle = getEl('adminConfirmationSubtitle');
+    els.closeConfirmation = getEl('adminCloseConfirmation');
+    els.cancelConfirmation = getEl('cancelConfirmationButton');
+    els.confirmAppointmentButton = getEl('confirmAppointmentButton');
+    els.confirmedDate = getEl('confirmedDate');
+    els.confirmedTime = getEl('confirmedTime');
+    els.finalPrice = getEl('finalPrice');
+    els.confirmedLocation = getEl('confirmedLocation');
+    els.ownerMessage = getEl('ownerMessage');
   }
 
   function initSupabase() {
@@ -112,13 +131,17 @@
     if (els.loginCard) els.loginCard.hidden = !visible;
     if (els.dashboard) els.dashboard.hidden = visible;
     if (!visible) return;
+    closeConfirmation();
     closeDetail();
   }
 
   function setDashboardVisible(visible) {
     if (els.dashboard) els.dashboard.hidden = !visible;
     if (els.loginCard) els.loginCard.hidden = visible;
-    if (!visible) closeDetail();
+    if (!visible) {
+      closeConfirmation();
+      closeDetail();
+    }
   }
 
   function normalize(value) {
@@ -178,6 +201,163 @@
     }).format(amount);
   }
 
+  function formatReadableTime(value) {
+    if (typeof value !== 'string' || !value) return value || '—';
+    const parts = value.split(':');
+    if (parts.length < 2) return value;
+    const hours = Number(parts[0]);
+    const minutes = Number(parts[1]);
+    if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return value;
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    return new Intl.DateTimeFormat(undefined, {
+      hour: 'numeric',
+      minute: '2-digit'
+    }).format(date);
+  }
+
+  function getConfirmedDetailsSource(booking) {
+    return {
+      confirmed_date: booking.confirmed_date || '',
+      confirmed_time: booking.confirmed_time || '',
+      final_price: booking.final_price == null ? '' : String(booking.final_price),
+      confirmed_location: booking.confirmed_location || '',
+      owner_message: booking.owner_message || ''
+    };
+  }
+
+  function getConfirmationDefaults(booking) {
+    const values = getConfirmedDetailsSource(booking);
+    if (!values.confirmed_date && booking.preferred_date) {
+      values.confirmed_date = booking.preferred_date;
+    }
+    if (!values.final_price && booking.starting_price != null) {
+      values.final_price = String(booking.starting_price);
+    }
+    return values;
+  }
+
+  function setFieldError(input, hasError) {
+    if (!input) return;
+    input.classList.toggle('field-error', Boolean(hasError));
+    input.setAttribute('aria-invalid', hasError ? 'true' : 'false');
+  }
+
+  function clearConfirmationErrors() {
+    [els.confirmedDate, els.confirmedTime, els.finalPrice, els.confirmedLocation].forEach(function (input) {
+      setFieldError(input, false);
+    });
+  }
+
+  function setConfirmationStatus(message, tone) {
+    setStatus(els.confirmationStatus, message, tone);
+  }
+
+  function getBookingById(bookingId) {
+    return state.bookings.find(function (booking) {
+      return String(booking.id) === String(bookingId);
+    }) || null;
+  }
+
+  function fillConfirmationForm(booking) {
+    if (!booking) return;
+    const values = getConfirmationDefaults(booking);
+    if (els.confirmedDate) els.confirmedDate.value = values.confirmed_date;
+    if (els.confirmedTime) els.confirmedTime.value = values.confirmed_time;
+    if (els.finalPrice) els.finalPrice.value = values.final_price;
+    if (els.confirmedLocation) els.confirmedLocation.value = values.confirmed_location;
+    if (els.ownerMessage) els.ownerMessage.value = values.owner_message;
+  }
+
+  function getConfirmationFormValues() {
+    return {
+      confirmedDate: String(els.confirmedDate && els.confirmedDate.value ? els.confirmedDate.value : '').trim(),
+      confirmedTime: String(els.confirmedTime && els.confirmedTime.value ? els.confirmedTime.value : '').trim(),
+      finalPrice: String(els.finalPrice && els.finalPrice.value ? els.finalPrice.value : '').trim(),
+      confirmedLocation: String(els.confirmedLocation && els.confirmedLocation.value ? els.confirmedLocation.value : '').trim(),
+      ownerMessage: String(els.ownerMessage && els.ownerMessage.value ? els.ownerMessage.value : '')
+    };
+  }
+
+  function validateConfirmationForm(values) {
+    clearConfirmationErrors();
+    const messages = [];
+    const missing = [];
+
+    if (!values.confirmedDate) {
+      missing.push('Confirmed date');
+      setFieldError(els.confirmedDate, true);
+    }
+    if (!values.confirmedTime) {
+      missing.push('Confirmed time');
+      setFieldError(els.confirmedTime, true);
+    }
+    if (!values.finalPrice) {
+      missing.push('Final price');
+      setFieldError(els.finalPrice, true);
+    }
+    if (!values.confirmedLocation) {
+      missing.push('Confirmed service location');
+      setFieldError(els.confirmedLocation, true);
+    }
+
+    const price = Number(values.finalPrice);
+    if (values.finalPrice && (!Number.isFinite(price) || price < 0)) {
+      messages.push('Final price must be a valid nonnegative number.');
+      setFieldError(els.finalPrice, true);
+    }
+
+    if (missing.length) {
+      messages.unshift(missing.join(', ') + (missing.length === 1 ? ' is required.' : ' are required.'));
+    }
+
+    if (messages.length) {
+      setConfirmationStatus(messages.join(' '), 'error');
+      return null;
+    }
+
+    return {
+      confirmed_date: values.confirmedDate,
+      confirmed_time: values.confirmedTime,
+      final_price: price,
+      confirmed_location: values.confirmedLocation.trim(),
+      owner_message: values.ownerMessage.trim() || null
+    };
+  }
+
+  function setConfirmationVisible(visible) {
+    if (els.confirmationPanel) els.confirmationPanel.hidden = !visible;
+    document.body.classList.toggle('admin-confirmation-open', visible);
+  }
+
+  function closeConfirmation() {
+    state.confirmationBookingId = null;
+    setConfirmationVisible(false);
+    clearConfirmationErrors();
+    setConfirmationStatus('');
+    if (els.confirmationSubtitle) {
+      els.confirmationSubtitle.textContent = 'Collect the final appointment details before confirming.';
+    }
+    if (els.confirmationForm) els.confirmationForm.reset();
+    if (state.lastTrigger && state.lastTrigger.isConnected && typeof state.lastTrigger.focus === 'function') {
+      state.lastTrigger.focus();
+    }
+  }
+
+  function openConfirmation(booking, trigger) {
+    if (!booking) return;
+    state.confirmationBookingId = String(booking.id);
+    state.lastTrigger = trigger || state.lastTrigger;
+    if (els.confirmationSubtitle) {
+      els.confirmationSubtitle.textContent = [getBookingReference(booking), booking.customer_name].filter(Boolean).join(' • ') || 'Collect the final appointment details before confirming.';
+    }
+    fillConfirmationForm(booking);
+    clearConfirmationErrors();
+    setConfirmationStatus('Fill in the appointment details before confirming.', 'info');
+    setConfirmationVisible(true);
+    if (els.confirmedDate) els.confirmedDate.focus();
+  }
+
   function getStatusLabel(status) {
     return STATUS_LABELS[status] || String(status || 'Unknown');
   }
@@ -234,6 +414,14 @@
     if (els.signInButton) els.signInButton.disabled = isBusy;
     if (els.search) els.search.disabled = isBusy;
     if (els.statusFilter) els.statusFilter.disabled = isBusy;
+    if (els.confirmAppointmentButton) els.confirmAppointmentButton.disabled = isBusy;
+    if (els.cancelConfirmation) els.cancelConfirmation.disabled = isBusy;
+    if (els.closeConfirmation) els.closeConfirmation.disabled = isBusy;
+    if (els.confirmedDate) els.confirmedDate.disabled = isBusy;
+    if (els.confirmedTime) els.confirmedTime.disabled = isBusy;
+    if (els.finalPrice) els.finalPrice.disabled = isBusy;
+    if (els.confirmedLocation) els.confirmedLocation.disabled = isBusy;
+    if (els.ownerMessage) els.ownerMessage.disabled = isBusy;
   }
 
   function setLoading(isLoading) {
@@ -260,6 +448,9 @@
   }
 
   function closeDetail() {
+    if (els.confirmationPanel && !els.confirmationPanel.hidden) {
+      closeConfirmation();
+    }
     state.selectedId = null;
     if (els.detailPanel) els.detailPanel.hidden = true;
     document.body.classList.remove('admin-detail-open');
@@ -444,6 +635,10 @@
       btn.textContent = action.label;
       btn.disabled = state.updating || normalize(booking.status) === action.status;
       btn.addEventListener('click', function () {
+        if (action.status === 'confirmed') {
+          openConfirmation(booking, btn);
+          return;
+        }
         requestStatusChange(booking, action.status, btn);
       });
       buttons.appendChild(btn);
@@ -572,6 +767,33 @@
       servicesWrap.appendChild(fallback);
     }
     serviceSection.appendChild(servicesWrap);
+
+    const confirmedFieldsPresent = [
+      booking.confirmed_date,
+      booking.confirmed_time,
+      booking.final_price,
+      booking.confirmed_location,
+      booking.owner_message
+    ].some(function (value) {
+      return value != null && String(value).trim() !== '';
+    });
+
+    if (normalize(booking.status) === 'confirmed' || confirmedFieldsPresent) {
+      const confirmationSection = document.createElement('section');
+      confirmationSection.className = 'admin-detail-section';
+      const confirmationHeading = document.createElement('h4');
+      confirmationHeading.textContent = 'Confirmed Appointment';
+      confirmationSection.appendChild(confirmationHeading);
+      appendTextValueRow(confirmationSection, 'Confirmed date', formatDate(booking.confirmed_date));
+      appendTextValueRow(confirmationSection, 'Confirmed time', formatReadableTime(booking.confirmed_time));
+      appendTextValueRow(confirmationSection, 'Final price', booking.final_price == null ? '—' : formatCurrency(booking.final_price));
+      appendTextValueRow(confirmationSection, 'Confirmed location', booking.confirmed_location);
+      const ownerMessage = document.createElement('p');
+      ownerMessage.className = 'admin-detail-value admin-detail-pre';
+      ownerMessage.textContent = booking.owner_message || '—';
+      confirmationSection.appendChild(createDetailRow('Owner message', ownerMessage));
+      grid.appendChild(confirmationSection);
+    }
 
     const requestSection = document.createElement('section');
     requestSection.className = 'admin-detail-section';
@@ -902,6 +1124,73 @@
       });
   }
 
+  async function handleConfirmationSubmit(event) {
+    event.preventDefault();
+    if (state.updating) return;
+
+    const booking = getBookingById(state.confirmationBookingId || state.selectedId);
+    const client = initSupabase();
+    if (!client) {
+      setConfirmationStatus('Supabase failed to load.', 'error');
+      return;
+    }
+
+    if (!booking) {
+      setConfirmationStatus('Select a booking before confirming.', 'error');
+      return;
+    }
+
+    const values = getConfirmationFormValues();
+    const payload = validateConfirmationForm(values);
+    if (!payload) return;
+
+    setBusy(true);
+    setConfirmationStatus('Saving confirmation details…', 'info');
+    renderDetail();
+
+    try {
+      const result = await client
+        .from('bookings')
+        .update({
+          status: 'confirmed',
+          confirmed_date: payload.confirmed_date,
+          confirmed_time: payload.confirmed_time,
+          final_price: payload.final_price,
+          confirmed_location: payload.confirmed_location,
+          owner_message: payload.owner_message,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', booking.id)
+        .select('id, status, confirmed_date, confirmed_time, final_price, confirmed_location, owner_message, updated_at')
+        .single();
+
+      if (result.error) {
+        console.error('Booking confirmation failed', result.error);
+        setConfirmationStatus('Couldn’t confirm booking. ' + (result.error.message || 'Unknown error.'), 'error');
+        return;
+      }
+
+      const updatedBooking = result.data || {};
+      state.bookings = state.bookings.map(function (item) {
+        if (String(item.id) !== String(booking.id)) return item;
+        return Object.assign({}, item, updatedBooking);
+      });
+      state.selectedId = String(booking.id);
+      state.lastActionMessage = 'Appointment confirmed in the dashboard. Customer email automation is not connected yet.';
+      setDashboardStatus(state.lastActionMessage, 'success');
+      closeConfirmation();
+      renderBookings();
+      highlightActiveBooking(state.selectedId);
+      renderDetail();
+    } catch (error) {
+      console.error('Booking confirmation error', error);
+      setConfirmationStatus('Couldn’t confirm booking. ' + (error && error.message ? error.message : 'Unknown error.'), 'error');
+    } finally {
+      setBusy(false);
+      renderDetail();
+    }
+  }
+
   function bindEvents() {
     if (els.loginForm) {
       els.loginForm.addEventListener('submit', handleSignIn);
@@ -927,6 +1216,22 @@
     if (els.closeDetail) {
       els.closeDetail.addEventListener('click', closeDetail);
     }
+    if (els.confirmationForm) {
+      els.confirmationForm.addEventListener('submit', handleConfirmationSubmit);
+    }
+    if (els.closeConfirmation) {
+      els.closeConfirmation.addEventListener('click', closeConfirmation);
+    }
+    if (els.cancelConfirmation) {
+      els.cancelConfirmation.addEventListener('click', closeConfirmation);
+    }
+    if (els.confirmationPanel) {
+      els.confirmationPanel.addEventListener('click', function (event) {
+        if (event.target && event.target.dataset && event.target.dataset.closeConfirmation === 'true') {
+          closeConfirmation();
+        }
+      });
+    }
     if (els.detailPanel) {
       els.detailPanel.addEventListener('click', function (event) {
         if (event.target && event.target.dataset && event.target.dataset.closeDetail === 'true') {
@@ -935,6 +1240,10 @@
       });
     }
     document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && els.confirmationPanel && !els.confirmationPanel.hidden) {
+        closeConfirmation();
+        return;
+      }
       if (event.key === 'Escape' && els.detailPanel && !els.detailPanel.hidden) {
         closeDetail();
       }
