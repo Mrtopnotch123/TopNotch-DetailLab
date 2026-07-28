@@ -68,7 +68,20 @@
             <div><label for="vehicleMake">Make <span class="label-note">Required</span></label><input id="vehicleMake" name="vehicleMake" type="text" autocomplete="organization-title" required placeholder="e.g. Toyota"></div>
             <div><label for="vehicleModel">Model <span class="label-note">Required</span></label><input id="vehicleModel" name="vehicleModel" type="text" autocomplete="organization-title" required placeholder="e.g. Camry"></div>
             <div><label for="vehicleType">Vehicle type <span class="label-note">Required</span></label><select id="vehicleType" name="vehicleType" required><option value="">Choose one</option><option>Coupe / Sedan</option><option>SUV / Crossover</option><option>Truck</option><option>Three-row SUV / Minivan</option><option>Other</option></select></div>
-            <div><label for="cityZip">City or ZIP code <span class="label-note">Required</span></label><input id="cityZip" name="cityZip" type="text" autocomplete="postal-code" required placeholder="Indianapolis or 46201"></div>
+            <div class="booking-location-section">
+            <div class="booking-location-copy">
+              <h3>SERVICE LOCATION</h3>
+              <p>Where will the vehicle be during the appointment? TopNotch DetailLab comes to you.</p>
+            </div>
+            <div class="form-grid service-location-grid">
+              <div><label for="serviceStreetAddress">Street address <span class="label-note">Required</span></label><input id="serviceStreetAddress" name="serviceStreetAddress" type="text" autocomplete="street-address" required placeholder="1234 Main Street"></div>
+              <div><label for="serviceUnit">Apartment / Suite <span class="label-note">Optional</span></label><input id="serviceUnit" name="serviceUnit" type="text" placeholder="Apartment, suite, building, or unit"></div>
+              <div><label for="serviceCity">City <span class="label-note">Required</span></label><input id="serviceCity" name="serviceCity" type="text" autocomplete="address-level2" required placeholder="Indianapolis"></div>
+              <div><label for="serviceState">State <span class="label-note">Required</span></label><select id="serviceState" name="serviceState" autocomplete="address-level1" required><option value="IN" selected>Indiana</option></select></div>
+              <div><label for="serviceZip">ZIP code <span class="label-note">Required</span></label><input id="serviceZip" name="serviceZip" type="text" inputmode="numeric" autocomplete="postal-code" required maxlength="10" placeholder="46201"></div>
+              <div class="service-location-parking"><label for="parkingInstructions">Parking instructions / gate code <span class="label-note">Optional</span></label><textarea id="parkingInstructions" name="parkingInstructions" rows="5" placeholder="Parking location, gate code, apartment building, office entrance, or arrival instructions."></textarea><p class="field-hint">Do not include sensitive access information unless it is necessary for the appointment.</p></div>
+            </div>
+          </div>
             <div><label for="preferredDate">Preferred date <span class="label-note">Required</span></label><input id="preferredDate" name="date" type="date" autocomplete="off" required></div>
             <div><label for="preferredTimeWindow">Preferred time window <span class="label-note">Required</span></label><select id="preferredTimeWindow" name="preferredTimeWindow" required><option value="">Choose one</option><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Flexible</option></select></div>
             <div><label for="condition">Interior condition <span class="label-note">Required</span></label><select id="condition" name="condition" required><option value="">Choose one</option><option>Maintained / light</option><option>Normal daily buildup</option><option>Deep cleaning needed</option><option>Severely neglected</option></select></div>
@@ -101,6 +114,6 @@
   <button class="back-to-top" id="backToTop" type="button" aria-label="Back to top">↑</button>
   <script src="../assets/js/main.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="../assets/js/booking.js?v=20260727-2" defer></script>
+  <script src="../assets/js/booking.js?v=20260728-1" defer></script>
 </body>
 </html>

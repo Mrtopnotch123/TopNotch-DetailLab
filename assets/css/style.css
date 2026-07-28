@@ -1243,6 +1243,46 @@ details p,
   gap: 0;
 }
 
+.booking-location-section {
+  grid-column: 1 / -1;
+  margin-bottom: 22px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.booking-location-copy {
+  margin-bottom: 18px;
+}
+
+.booking-location-copy h3 {
+  margin: 0 0 8px;
+  color: #fff;
+  font-family: "Barlow Condensed", Impact, "Arial Narrow", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.booking-location-copy p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.service-location-grid {
+  gap: 0 18px;
+}
+
+.service-location-grid .service-location-parking {
+  grid-column: 1 / -1;
+}
+
+.service-location-grid .field-hint {
+  margin: -8px 0 0;
+}
+
 .consent {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -2829,6 +2869,17 @@ body.admin-confirmation-open {
 .admin-detail-list-wrap {
   display: grid;
   gap: 8px;
+}
+
+.admin-detail-location-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.admin-detail-location-actions .button {
+  width: auto;
 }
 
 .admin-detail-list {

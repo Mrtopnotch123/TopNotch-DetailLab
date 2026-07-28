@@ -8,11 +8,17 @@
     'customer_name',
     'customer_email',
     'customer_phone',
+    'service_street_address',
+    'service_unit',
+    'service_city',
+    'service_state',
+    'service_zip',
+    'parking_instructions',
+    'city_zip',
     'vehicle_year',
     'vehicle_make',
     'vehicle_model',
     'vehicle_type',
-    'city_zip',
     'preferred_date',
     'preferred_time_window',
     'interior_condition',
@@ -412,12 +418,47 @@
       booking.customer_name,
       booking.customer_email,
       booking.customer_phone,
+      booking.service_street_address,
+      booking.service_unit,
+      booking.service_city,
+      booking.service_state,
+      booking.service_zip,
+      booking.parking_instructions,
+      booking.city_zip,
       booking.vehicle_make,
       booking.vehicle_model,
-      booking.city_zip,
       booking.package_name,
       selectedServices
     ].map(normalize).join(' ');
+  }
+
+  function trimText(value) {
+    return String(value == null ? '' : value).trim();
+  }
+
+  function formatServiceCityStateZip(booking) {
+    const city = trimText(booking.service_city);
+    const state = trimText(booking.service_state);
+    const zip = trimText(booking.service_zip);
+    const legacy = trimText(booking.city_zip);
+    if (!city && !state && !zip) return legacy;
+    if (city && state && zip) return city + ', ' + state + ' ' + zip;
+    return [city, state, zip].filter(Boolean).join(' ');
+  }
+
+  function getServiceLocationAddress(booking) {
+    const street = trimText(booking.service_street_address);
+    const unit = trimText(booking.service_unit);
+    const city = trimText(booking.service_city);
+    const state = trimText(booking.service_state);
+    const zip = trimText(booking.service_zip);
+    const legacy = trimText(booking.city_zip);
+
+    if (street && city && state && zip) {
+      return [street, unit, city + ', ' + state + ' ' + zip].filter(Boolean).join(', ');
+    }
+
+    return legacy || [street, unit, city, state, zip].filter(Boolean).join(', ');
   }
 
   function matchesVisibleFilter(booking) {
@@ -829,7 +870,45 @@
     appendTextValueRow(customerSection, 'Name', booking.customer_name);
     appendLinkValueRow(customerSection, 'Email', booking.customer_email, 'mailto:' + booking.customer_email);
     appendLinkValueRow(customerSection, 'Phone', booking.customer_phone, 'tel:' + String(booking.customer_phone || '').replace(/\D/g, ''));
-    appendTextValueRow(customerSection, 'City or ZIP', booking.city_zip);
+
+    const serviceLocationSection = document.createElement('section');
+    serviceLocationSection.className = 'admin-detail-section';
+    const serviceLocationHeading = document.createElement('h4');
+    serviceLocationHeading.textContent = 'SERVICE LOCATION';
+    serviceLocationSection.appendChild(serviceLocationHeading);
+
+    const hasNewServiceLocation = [booking.service_street_address, booking.service_city, booking.service_state, booking.service_zip].some(function (value) {
+      return trimText(value) !== '';
+    });
+    const legacyLocation = trimText(booking.city_zip);
+    const mapsAddress = getServiceLocationAddress(booking);
+
+    if (hasNewServiceLocation) {
+      appendTextValueRow(serviceLocationSection, 'Street address', booking.service_street_address);
+      if (trimText(booking.service_unit)) {
+        appendTextValueRow(serviceLocationSection, 'Apartment / Suite', booking.service_unit);
+      }
+      appendTextValueRow(serviceLocationSection, 'City, State ZIP', formatServiceCityStateZip(booking));
+    } else {
+      appendTextValueRow(serviceLocationSection, 'Location', legacyLocation);
+    }
+
+    if (trimText(booking.parking_instructions)) {
+      appendTextValueRow(serviceLocationSection, 'PARKING / ARRIVAL INSTRUCTIONS', booking.parking_instructions);
+    }
+
+    if (mapsAddress) {
+      const locationActions = document.createElement('div');
+      locationActions.className = 'admin-detail-location-actions';
+      const mapsLink = document.createElement('a');
+      mapsLink.className = 'button button-small admin-map-button';
+      mapsLink.href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapsAddress);
+      mapsLink.target = '_blank';
+      mapsLink.rel = 'noopener noreferrer';
+      mapsLink.textContent = 'OPEN IN MAPS';
+      locationActions.appendChild(mapsLink);
+      serviceLocationSection.appendChild(locationActions);
+    }
 
     const vehicleSection = document.createElement('section');
     vehicleSection.className = 'admin-detail-section';
@@ -941,6 +1020,7 @@
 
     grid.appendChild(bookingSection);
     grid.appendChild(customerSection);
+    grid.appendChild(serviceLocationSection);
     grid.appendChild(vehicleSection);
     grid.appendChild(serviceSection);
     grid.appendChild(requestSection);
