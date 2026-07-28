@@ -279,7 +279,7 @@
       confirmedTime: String(els.confirmedTime && els.confirmedTime.value ? els.confirmedTime.value : '').trim(),
       finalPrice: String(els.finalPrice && els.finalPrice.value ? els.finalPrice.value : '').trim(),
       confirmedLocation: String(els.confirmedLocation && els.confirmedLocation.value ? els.confirmedLocation.value : '').trim(),
-      ownerMessage: String(els.ownerMessage && els.ownerMessage.value ? els.ownerMessage.value : '')
+      ownerMessage: String(els.ownerMessage && els.ownerMessage.value ? els.ownerMessage.value : '').trim()
     };
   }
 
