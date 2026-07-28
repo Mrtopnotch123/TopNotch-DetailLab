@@ -508,31 +508,38 @@
   async function waitForCustomerNotification(bookingId, expectedStatus) {
     const deadline = Date.now() + NOTIFICATION_POLL_TIMEOUT_MS;
     let latestBooking = null;
+    let terminalResult = null;
 
     while (Date.now() < deadline) {
       latestBooking = await fetchBookingById(bookingId);
       if (latestBooking) {
         const notificationState = getNotificationState(latestBooking);
         if (notificationState.state === 'failed') {
-          return {
+          terminalResult = {
             ok: false,
             pending: false,
             booking: latestBooking,
             message: 'Booking updated but customer email could not be delivered.'
           };
+          break;
         }
         if (normalize(latestBooking.customer_notified_status) === normalize(expectedStatus)) {
-          return {
+          terminalResult = {
             ok: true,
             booking: latestBooking,
             message: 'Customer successfully notified.'
           };
+          break;
         }
       }
 
       await new Promise(function (resolve) {
         setTimeout(resolve, NOTIFICATION_POLL_INTERVAL_MS);
       });
+    }
+
+    if (terminalResult) {
+      return terminalResult;
     }
 
     return {

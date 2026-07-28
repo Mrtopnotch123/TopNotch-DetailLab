@@ -28,7 +28,7 @@ security definer
 set search_path = public, pg_catalog
 as $$
 declare
-  webhook_secret text := current_setting('app.webhooks.customer_notification_secret', true);
+  webhook_secret text := current_setting('app.webhooks.customer_notification_webhook_secret', true);
   webhook_url text := current_setting('app.webhooks.customer_notification_webhook_url', true);
   payload jsonb;
 begin
@@ -41,7 +41,7 @@ begin
   end if;
 
   if webhook_secret is null or webhook_secret = '' then
-    raise exception 'Missing app.webhooks.customer_notification_secret';
+    raise exception 'Missing app.webhooks.customer_notification_webhook_secret';
   end if;
 
   if webhook_url is null or webhook_url = '' then

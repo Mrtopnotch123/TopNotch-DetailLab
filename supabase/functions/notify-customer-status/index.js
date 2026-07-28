@@ -116,7 +116,7 @@ function buildConfirmedEmail(record) {
   const ownerMessage = trimValue(record.owner_message);
   const reference = getReferenceNumber(record);
   const confirmedDate = formatDate(record.confirmed_date || record.preferred_date);
-  const confirmedTime = formatTime(record.confirmed_time || record.preferred_time_window);
+  const confirmedTime = isPresent(record.confirmed_time) ? formatTime(record.confirmed_time) : trimValue(record.preferred_time_window || '—');
   const confirmedLocation = trimValue(record.confirmed_location || '—');
   const finalPrice = money(record.final_price == null ? record.starting_price : record.final_price);
 
@@ -439,7 +439,7 @@ async function supabaseFetch(path, options) {
 }
 
 async function claimNotificationEvent(record, previousRecord) {
-  const sourceUpdatedAt = trimValue(record.updated_at || previousRecord.updated_at || record.created_at);
+  const sourceUpdatedAt = trimValue(record.updated_at);
   if (!sourceUpdatedAt) {
     throw new Error('Webhook payload is missing an update timestamp.');
   }
