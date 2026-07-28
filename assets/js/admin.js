@@ -251,7 +251,7 @@
     if (unit) lines.push(unit);
     if (city || state || zip) {
       const cityState = [city, state].filter(Boolean).join(', ');
-      const cityStateZip = [cityState, zip].filter(Boolean).join(cityState && zip ? ' ' : '');
+      const cityStateZip = [cityState, zip].filter(Boolean).join(' ');
       if (cityStateZip) lines.push(cityStateZip);
     }
     return lines.filter(Boolean);
