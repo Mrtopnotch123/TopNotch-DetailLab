@@ -207,7 +207,7 @@
     if (parts.length < 2) return value;
     const hours = Number(parts[0]);
     const minutes = Number(parts[1]);
-    if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return value;
+    if (!Number.isFinite(hours) || !Number.isFinite(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return value;
     const date = new Date();
     date.setHours(hours, minutes, 0, 0);
     return new Intl.DateTimeFormat(undefined, {
@@ -303,7 +303,7 @@
 
     const price = Number(values.finalPrice);
     if (values.finalPrice && (!Number.isFinite(price) || price < 0)) {
-      messages.push('Final price must be a valid nonnegative number.');
+      messages.push('Final price must be a valid non-negative number.');
       setFieldError(els.finalPrice, true);
     }
 
@@ -1176,6 +1176,7 @@
         return Object.assign({}, item, updatedBooking);
       });
       state.selectedId = String(booking.id);
+      // Customer email automation is intentionally not connected yet.
       state.lastActionMessage = 'Appointment confirmed in the dashboard. Customer email automation is not connected yet.';
       setDashboardStatus(state.lastActionMessage, 'success');
       closeConfirmation();
