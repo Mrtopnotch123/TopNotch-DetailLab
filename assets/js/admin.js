@@ -335,7 +335,7 @@
   }
 
   function isNotificationComplete(booking, expectedStatus) {
-    return normalize(booking && booking.customer_notified_status) === normalize(expectedStatus) && String(booking && booking.customer_notified_at ? booking.customer_notified_at : '').trim() !== '';
+    return normalize(booking?.customer_notified_status) === normalize(expectedStatus) && String(booking?.customer_notified_at || '').trim() !== '';
   }
 
   function getConfirmationDefaults(booking) {

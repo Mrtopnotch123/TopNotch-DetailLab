@@ -126,7 +126,7 @@
     });
     if (matches.length) return matches[0];
     const legacyAliases = {
-      // Backward compatibility for drafts saved before the arrival-window upgrade; these legacy values are no longer selectable in the UI.
+      // Backward compatibility for drafts saved before the arrival-window upgrade; normalize case so capitalized legacy values still map even though they are no longer selectable in the UI.
       morning: '8:00 AM-10:00 AM',
       afternoon: '12:00 PM-2:00 PM',
       evening: '4:00 PM-6:00 PM'
