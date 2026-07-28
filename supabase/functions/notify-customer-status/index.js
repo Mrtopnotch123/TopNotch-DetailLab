@@ -266,6 +266,7 @@ function buildConfirmedEmail(record) {
   const finalPriceValue = record.final_price == null ? record.starting_price : record.final_price;
   const finalPrice = isPresent(finalPriceValue) ? money(finalPriceValue) : '';
   const intro = buildPackageIntro(packageName);
+  const preheaderDate = confirmedDate ? confirmedDate : 'your requested date';
 
   const detailRows = [
     { label: 'Reference', value: reference },
@@ -300,7 +301,7 @@ function buildConfirmedEmail(record) {
 
   return {
     subject: `${BRAND_NAME}: your ${packageName} is confirmed`,
-    preheader: `${packageName} appointment confirmed for ${confirmedDate || 'your requested date'}.`,
+    preheader: `${packageName} appointment confirmed for ${preheaderDate}.`,
     text: text.join('\n'),
     html: buildEmailShell(
       `${packageName} appointment confirmed.`,
@@ -392,7 +393,7 @@ function buildDeclinedEmail(record) {
         <p style="margin:0 0 16px 0;color:#e7e7e7;font-size:16px;line-height:1.6;">Thank you for considering TopNotch DetailLab.</p>
         <p style="margin:0 0 16px 0;color:#e7e7e7;font-size:16px;line-height:1.6;">After reviewing your request, we’re unable to accept or schedule this particular service at this time.</p>
         ${buildDetailTable([{ label: 'Reference', value: reference }, { label: 'Service', value: packageName }])}
-        ${ownerReason ? buildNoteBox('Owner explanation', ownerReason) : ''}
+        ${ownerReason ? buildNoteBox('OWNER EXPLANATION', ownerReason) : ''}
         <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">Your appointment was not confirmed, and no payment has been collected.</p>
         <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">We appreciate the opportunity to review your request and hope we may be able to serve you another time.</p>
       `
@@ -478,7 +479,7 @@ function buildCancelledEmail(record) {
           { label: 'Confirmed date', value: confirmedDate },
           { label: 'Confirmed time', value: confirmedTime }
         ])}
-        ${ownerReason ? buildNoteBox('Owner explanation', ownerReason) : ''}
+        ${ownerReason ? buildNoteBox('OWNER EXPLANATION', ownerReason) : ''}
         <p style="margin:16px 0 0 0;color:#e7e7e7;font-size:16px;line-height:1.6;">No further action is required. When you’re ready, you’re welcome to submit a new booking request through the TopNotch DetailLab website.</p>
       `
     )

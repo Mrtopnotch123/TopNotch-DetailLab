@@ -1276,6 +1276,11 @@ details p,
   gap: 8px;
 }
 
+.booking-arrival-window label {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
 .service-location-grid {
   gap: 0 18px;
 }

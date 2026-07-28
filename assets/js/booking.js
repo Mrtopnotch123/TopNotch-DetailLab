@@ -126,6 +126,7 @@
     });
     if (matches.length) return matches[0];
     const legacyAliases = {
+      // Map old draft values to the nearest practical arrival window so saved drafts stay usable.
       morning: '8:00 AM-10:00 AM',
       afternoon: '12:00 PM-2:00 PM',
       evening: '4:00 PM-6:00 PM'

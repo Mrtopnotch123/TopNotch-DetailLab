@@ -314,7 +314,6 @@
   function getNotificationState(booking) {
     const error = String(booking.customer_notification_error || '').trim();
     const notifiedStatus = normalize(booking.customer_notified_status);
-    const notifiedAt = String(booking.customer_notified_at || '').trim();
     if (error) {
       return {
         state: 'failed',
@@ -322,8 +321,8 @@
         message: error
       };
     }
-    // Treat the send as successful only after the webhook writes both the current status and a timestamp.
-    if (notifiedStatus && notifiedAt) {
+    // Treat the send as successful only after notify-customer-status writes both the current status and a timestamp.
+    if (notifiedStatus && hasNotificationTimestamp(booking)) {
       return {
         state: 'success',
         label: 'Customer successfully notified',
@@ -335,6 +334,10 @@
       label: 'Processing',
       message: 'Booking updated. Customer notification is processing.'
     };
+  }
+
+  function hasNotificationTimestamp(booking) {
+    return String(booking && booking.customer_notified_at ? booking.customer_notified_at : '').trim() !== '';
   }
 
   function getConfirmationDefaults(booking) {
