@@ -516,9 +516,9 @@
         if (notificationState.state === 'failed') {
           return {
             ok: false,
-            pending: true,
+            pending: false,
             booking: latestBooking,
-            message: 'Booking updated but email delivery status is still pending.'
+            message: 'Booking updated but customer email could not be delivered.'
           };
         }
         if (normalize(latestBooking.customer_notified_status) === normalize(expectedStatus)) {
