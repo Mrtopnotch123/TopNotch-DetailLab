@@ -1,5 +1,4 @@
 create extension if not exists pg_net;
-create extension if not exists pgcrypto;
 
 alter table public.bookings
   add column if not exists customer_notified_status text,

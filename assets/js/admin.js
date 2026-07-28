@@ -61,6 +61,7 @@
     { status: 'completed', label: 'MARK COMPLETED' },
     { status: 'cancelled', label: 'CANCEL BOOKING' }
   ];
+  // Give the webhook enough time to clear the booking, send Brevo, and write back the result.
   const NOTIFICATION_POLL_TIMEOUT_MS = 15000;
   const NOTIFICATION_POLL_INTERVAL_MS = 1000;
   const state = {
@@ -515,8 +516,9 @@
         if (notificationState.state === 'failed') {
           return {
             ok: false,
+            pending: true,
             booking: latestBooking,
-            message: 'Booking updated but customer email could not be delivered.'
+            message: 'Booking updated but email delivery status is still pending.'
           };
         }
         if (normalize(latestBooking.customer_notified_status) === normalize(expectedStatus)) {
@@ -1214,11 +1216,12 @@
         setDashboardStatus('Booking updated. Waiting for customer email…', 'info');
         const notificationResult = await waitForCustomerNotification(booking.id, nextStatus);
         state.lastActionMessage = notificationResult.message;
-        setDashboardStatus(notificationResult.message, notificationResult.ok ? 'success' : 'error');
+        const notificationTone = notificationResult.pending ? 'info' : (notificationResult.ok ? 'success' : 'error');
+        setDashboardStatus(notificationResult.message, notificationTone);
         await refreshBookings({
           showLoading: false,
           successMessage: notificationResult.message,
-          successTone: notificationResult.ok ? 'success' : 'error'
+          successTone: notificationTone
         });
         state.selectedId = String(booking.id);
         highlightActiveBooking(state.selectedId);
@@ -1288,12 +1291,13 @@
       setConfirmationStatus('Booking updated. Waiting for customer email…', 'info');
       const notificationResult = await waitForCustomerNotification(booking.id, 'confirmed');
       state.lastActionMessage = notificationResult.message;
-      setDashboardStatus(notificationResult.message, notificationResult.ok ? 'success' : 'error');
+      const notificationTone = notificationResult.pending ? 'info' : (notificationResult.ok ? 'success' : 'error');
+      setDashboardStatus(notificationResult.message, notificationTone);
       closeConfirmation();
       await refreshBookings({
         showLoading: false,
         successMessage: notificationResult.message,
-        successTone: notificationResult.ok ? 'success' : 'error'
+        successTone: notificationTone
       });
       highlightActiveBooking(state.selectedId);
     } catch (error) {

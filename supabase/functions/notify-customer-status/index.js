@@ -9,15 +9,19 @@ const PACKAGE_COPY = {
   'build your own reset': 'Your Build Your Own Reset is confirmed with your custom selections in place.'
 };
 
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY') || '';
 const BREVO_SENDER_EMAIL = Deno.env.get('BREVO_SENDER_EMAIL') || 'hello@topnotchdetaillab.com';
 const BREVO_SENDER_NAME = Deno.env.get('BREVO_SENDER_NAME') || BRAND_NAME;
-const WEBHOOK_SECRET = Deno.env.get('WEBHOOK_SECRET') || '';
+const WEBHOOK_SECRET = Deno.env.get('WEBHOOK_SECRET');
 
 if (!SUPABASE_URL) {
   throw new Error('SUPABASE_URL is not configured.');
+}
+
+if (!WEBHOOK_SECRET) {
+  throw new Error('WEBHOOK_SECRET is not configured.');
 }
 
 function jsonResponse(body, status) {
@@ -255,7 +259,7 @@ function buildCompletedEmail(record) {
   const text = [
     `Hi ${customerName},`,
     '',
-    `Your ${packageName} is complete. Thank you for choosing TopNotch DetailLab.`,
+    `Your ${packageName} is complete. Thank you for choosing ${BRAND_NAME}.`,
     `Reference number: ${reference}`,
     '',
     'We’d love to care for your vehicle again whenever you need a future reset.'
@@ -269,13 +273,13 @@ function buildCompletedEmail(record) {
 
   return {
     subject: `${BRAND_NAME}: your ${packageName} is complete`,
-    preheader: 'Your service is complete. Thank you for choosing TopNotch DetailLab.',
+    preheader: `Your service is complete. Thank you for choosing ${BRAND_NAME}.`,
     text: text.join('\n'),
     html: `
       <div class="card">
         <p class="eyebrow">Service complete</p>
         <h1>Hello ${escapeHtml(customerName)},</h1>
-        <p>Your ${escapeHtml(packageName)} is complete. Thank you for choosing TopNotch DetailLab.</p>
+        <p>Your ${escapeHtml(packageName)} is complete. Thank you for choosing ${escapeHtml(BRAND_NAME)}.</p>
         <div class="highlight">
           <div class="highlight-label">Reference number</div>
           <div class="highlight-value">${escapeHtml(reference)}</div>
