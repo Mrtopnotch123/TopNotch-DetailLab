@@ -144,8 +144,8 @@
         return;
       }
 
-      const trackedFieldIds = ['customerName', 'customerEmail', 'customerPhone', 'vehicleYear', 'vehicleMake', 'vehicleModel', 'vehicleType', 'cityZip', 'preferredDate', 'preferredTimeWindow', 'condition', 'notes', 'bookingConsent'];
-      const requiredFieldIds = ['customerName', 'customerEmail', 'customerPhone', 'vehicleYear', 'vehicleMake', 'vehicleModel', 'vehicleType', 'cityZip', 'preferredDate', 'preferredTimeWindow', 'condition', 'bookingConsent'];
+      const trackedFieldIds = ['customerName', 'customerEmail', 'customerPhone', 'vehicleYear', 'vehicleMake', 'vehicleModel', 'vehicleType', 'serviceStreetAddress', 'serviceUnit', 'serviceCity', 'serviceState', 'serviceZip', 'parkingInstructions', 'preferredDate', 'preferredTimeWindow', 'condition', 'notes', 'bookingConsent'];
+      const requiredFieldIds = ['customerName', 'customerEmail', 'customerPhone', 'vehicleYear', 'vehicleMake', 'vehicleModel', 'vehicleType', 'serviceStreetAddress', 'serviceCity', 'serviceState', 'serviceZip', 'preferredDate', 'preferredTimeWindow', 'condition', 'bookingConsent'];
       let isSubmitting = false;
 
       if (dateInput) {
@@ -249,7 +249,12 @@
           vehicleMake: 'Vehicle make',
           vehicleModel: 'Vehicle model',
           vehicleType: 'Vehicle type',
-          cityZip: 'City or ZIP code',
+          serviceStreetAddress: 'Street address',
+          serviceUnit: 'Apartment / Suite',
+          serviceCity: 'City',
+          serviceState: 'State',
+          serviceZip: 'ZIP code',
+          parkingInstructions: 'Parking instructions / gate code',
           preferredDate: 'Preferred date',
           preferredTimeWindow: 'Preferred time window',
           condition: 'Interior condition',
@@ -277,9 +282,17 @@
           if (!/^\d{4}$/.test(value)) return 'Please enter a 4-digit vehicle year.';
           if (year < 1900 || year > maxYear) return 'Please enter a vehicle year between 1900 and ' + maxYear + '.';
         }
-        if (field.id === 'cityZip') {
-          if (!/^[A-Za-z0-9][A-Za-z0-9,\-.\s]{0,59}$/.test(value)) return 'Use letters, numbers, spaces, commas, periods, or hyphens only.';
-          if (!(/[A-Za-z]{2,}/.test(value) || /\b\d{5}(?:-\d{4})?\b/.test(value))) return 'Enter a city name or a valid ZIP code.';
+        if (field.id === 'serviceStreetAddress') {
+          if (!value) return 'Street address is required.';
+        }
+        if (field.id === 'serviceCity') {
+          if (!value) return 'City is required.';
+        }
+        if (field.id === 'serviceState') {
+          if (value !== 'IN') return 'State must be Indiana.';
+        }
+        if (field.id === 'serviceZip') {
+          if (!/^\d{5}(?:-\d{4})?$/.test(value)) return 'Enter a valid ZIP code in 12345 or 12345-6789 format.';
         }
         if (field.id === 'preferredDate') {
           const picked = parseDateInput(value);
@@ -324,7 +337,12 @@
           vehicleMake: fieldValue('vehicleMake'),
           vehicleModel: fieldValue('vehicleModel'),
           vehicleType: fieldValue('vehicleType'),
-          cityZip: fieldValue('cityZip'),
+          serviceStreetAddress: fieldValue('serviceStreetAddress'),
+          serviceUnit: fieldValue('serviceUnit'),
+          serviceCity: fieldValue('serviceCity'),
+          serviceState: fieldValue('serviceState'),
+          serviceZip: fieldValue('serviceZip'),
+          parkingInstructions: fieldValue('parkingInstructions'),
           preferredDate: fieldValue('preferredDate'),
           preferredTimeWindow: fieldValue('preferredTimeWindow'),
           condition: fieldValue('condition'),
@@ -432,7 +450,13 @@
             vehicle_make: fieldValue('vehicleMake'),
             vehicle_model: fieldValue('vehicleModel'),
             vehicle_type: fieldValue('vehicleType'),
-            city_zip: fieldValue('cityZip'),
+            service_street_address: fieldValue('serviceStreetAddress').trim(),
+            service_unit: fieldValue('serviceUnit').trim() || null,
+            service_city: fieldValue('serviceCity').trim(),
+            service_state: fieldValue('serviceState').trim(),
+            service_zip: fieldValue('serviceZip').trim(),
+            parking_instructions: fieldValue('parkingInstructions').trim() || null,
+            city_zip: fieldValue('serviceCity').trim() + ', ' + fieldValue('serviceState').trim() + ' ' + fieldValue('serviceZip').trim(),
             preferred_date: fieldValue('preferredDate'),
             preferred_time_window: fieldValue('preferredTimeWindow'),
             interior_condition: fieldValue('condition'),
