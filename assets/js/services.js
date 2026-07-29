@@ -1,6 +1,7 @@
 /* =========================================================
    TOPNOTCH DETAILLAB — SERVICES.JS
    Preset-choice handling, selection banners, and Package Finder.
+   PHASE 1: Updated pricing for locked packages
 ========================================================= */
 
 (function () {
@@ -8,6 +9,14 @@
 
   const STORAGE_KEY = 'topnotchSelection';
   const DRAFT_KEY = 'topnotchBuilderDraft';
+
+  // ===== LOCKED PACKAGE PRICING =====
+  const PACKAGE_PRICING = {
+    'Quick Reset': 40,
+    'Full Reset': 90,
+    'Deep Reset': 180,
+    'Recovery': null
+  };
 
   function getSelection() {
     try {
@@ -39,8 +48,8 @@
 
   function priceLabelFor(packageName, price) {
     if (packageName === 'Quick Reset') return '$40';
-    if (packageName === 'Full Reset') return 'From $75';
-    if (packageName === 'Deep Reset') return 'From $150';
+    if (packageName === 'Full Reset') return 'From $90';
+    if (packageName === 'Deep Reset') return 'From $180';
     if (packageName === 'Recovery' || packageName === 'Recovery Assessment') return 'Custom Assessment';
     if (typeof price === 'number' && !Number.isNaN(price)) return 'Starting total $' + price;
     return '';
@@ -124,7 +133,7 @@
       button.addEventListener('click', function () {
         const pkg = button.dataset.package;
         const priceAttr = button.dataset.price;
-        const price = priceAttr !== undefined && priceAttr !== '' ? Number(priceAttr) : null;
+        const price = priceAttr !== undefined && priceAttr !== '' ? Number(priceAttr) : PACKAGE_PRICING[pkg] || null;
 
         if (hasCustomOrAssessmentSelection()) {
           const confirmed = window.confirm('You have a custom build in progress. Choosing a preset will replace it. Continue?');
@@ -149,19 +158,48 @@
     if (!form || !conditionSelect || !specialSelect || !resultBox) return;
 
     function recommend(condition, special) {
+      // Severe condition → Recovery Assessment
       if (condition === 'severe') {
-        return { package: 'Recovery', price: null, text: 'Your interior may require a <strong>Recovery Assessment</strong>. Recovery handles severe neglect, excessive buildup, and conditions beyond standard package scope. Clear interior photos will be required before pricing.' };
+        return { 
+          package: 'Recovery', 
+          price: null, 
+          text: 'Your interior may require a <strong>Recovery Assessment</strong>. This handles severe neglect, excessive buildup, and conditions beyond standard package scope. Clear interior photos will be required before pricing.' 
+        };
       }
+
+      // Extensive pet hair or odor → Recovery Assessment
       if (special === 'heavy') {
-        return { package: 'Recovery', price: null, text: 'Extensive embedded pet hair or strong persistent odors may require a <strong>Recovery Assessment</strong> before a fixed price can be provided. Clear interior photos will be required.' };
+        return { 
+          package: 'Recovery', 
+          price: null, 
+          text: 'Extensive embedded pet hair or strong persistent odors may require a <strong>Recovery Assessment</strong> before a fixed price can be provided. Clear interior photos will be required.' 
+        };
       }
+
+      // Deep cleaning needs or some pet hair/odor → Deep Reset
       if (condition === 'deep' || special === 'some') {
-        return { package: 'Deep Reset', price: 150, text: 'Based on your answers, a <strong>Deep Reset (from $150)</strong> is a strong starting point. It includes extraction, compressed-air blowout, detailed vent cleaning, door-jamb cleaning, and material-specific care.' };
+        return { 
+          package: 'Deep Reset', 
+          price: 180, 
+          text: 'Based on your answers, a <strong>Deep Reset (from $180)</strong> is a strong starting point. It includes complete interior service with extraction, vent detail, crevice precision, and condition-specific care.' 
+        };
       }
+
+      // Normal daily buildup → Full Reset
       if (condition === 'normal') {
-        return { package: 'Full Reset', price: 75, text: 'Based on your answers, a <strong>Full Reset (from $75)</strong> is well suited for normal everyday interiors. It covers all accessible surfaces, interior glass, and protective finish.' };
+        return { 
+          package: 'Full Reset', 
+          price: 90, 
+          text: 'Based on your answers, a <strong>Full Reset (from $90)</strong> is well suited for normal everyday interiors. It covers all accessible surfaces, interior glass, vent detail, precision crevices, and final inspection.' 
+        };
       }
-      return { package: 'Quick Reset', price: 40, text: 'Based on your answers, a <strong>Quick Reset ($40)</strong> looks like the right fit — trash removal, vacuuming, and a light surface wipe-down.' };
+
+      // Light maintenance → Quick Reset
+      return { 
+        package: 'Quick Reset', 
+        price: 40, 
+        text: 'Based on your answers, a <strong>Quick Reset ($40)</strong> looks like the right fit — trash removal, vacuuming, and interior surface refresh.' 
+      };
     }
 
     let lastRecommendation = null;
