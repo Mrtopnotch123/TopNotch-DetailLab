@@ -1,6 +1,7 @@
 /* =========================================================
    TOPNOTCH DETAILLAB — BUILDER.JS
    Build Your Own Reset interactive page logic.
+   PHASE 1: Locked Reset Packages & Builder Services
 ========================================================= */
 
 (function () {
@@ -10,6 +11,204 @@
   const SELECTION_KEY = 'topnotchSelection';
   const MOBILE_MINIMUM = 40;
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ===== LOCKED PACKAGE DEFINITIONS =====
+  const LOCKED_PACKAGES = {
+    quickReset: {
+      name: 'Quick Reset',
+      price: 40,
+      label: 'FROM $40',
+      recommended: false,
+      description: 'Perfect for maintaining a clean interior between full details.',
+      includes: [
+        'Trash removal',
+        'Complete Interior Vacuum',
+        'Interior Surface Reset'
+      ],
+      details: 'Interior Surface Reset includes: Dashboard, Center console, Door panels, Steering wheel, Cup holders, Interior trim, Door jambs, Standard accessible interior touch points.',
+      excludes: [
+        'Interior glass',
+        'Vent Detail',
+        'Precision Crevice Detail',
+        'Trunk / Cargo Area Detail',
+        'Shampoo or extraction',
+        'Stain treatment',
+        'Pet-hair treatment',
+        'Odor treatment'
+      ]
+    },
+    fullReset: {
+      name: 'Full Reset',
+      price: 90,
+      label: 'FROM $90',
+      recommended: true,
+      description: 'Our signature interior service, designed to restore the vehicle\'s everyday cleanliness.',
+      includes: [
+        'Trash removal',
+        'Complete Interior Vacuum',
+        'Interior Surface Reset',
+        'Interior Glass',
+        'Vent Detail',
+        'Precision Crevice Detail',
+        'Trunk / Cargo Area Detail',
+        'Final Quality Inspection'
+      ],
+      details: 'Includes everything in Quick Reset, plus precision cleaning and final inspection. Compressed-air use included whenever needed.',
+      excludes: [
+        'Shampoo or extraction',
+        'Stain treatment',
+        'Pet-hair treatment',
+        'Odor treatment'
+      ]
+    },
+    deepReset: {
+      name: 'Deep Reset',
+      price: 180,
+      label: 'FROM $180',
+      recommended: false,
+      description: 'Designed for interiors with heavier buildup that need restorative cleaning beyond routine detailing.',
+      includes: [
+        'Everything in Full Reset',
+        'Carpet Shampoo / Extraction',
+        'Seat Shampoo / Extraction',
+        'Spot Stain Treatment',
+        'Extended attention to neglected areas'
+      ],
+      details: 'Full Reset services plus restorative fabric treatment for buildup.',
+      excludes: [
+        'Complete stain removal guarantee',
+        'Pet-hair treatment',
+        'Odor treatment'
+      ]
+    },
+    recovery: {
+      name: 'Recovery',
+      price: null,
+      label: 'ASSESSMENT REQUIRED',
+      recommended: false,
+      description: 'TopNotch DetailLab\'s highest level of interior recovery, customized for severe conditions that cannot be accurately priced online.',
+      assessment: true,
+      mayInclude: [
+        'Heavy pet-hair removal',
+        'Extensive stain treatment',
+        'Excessive-trash removal',
+        'Deep fabric treatment',
+        'Additional approved interior recovery work'
+      ],
+      excludes: [
+        'Child-seat cleaning',
+        'Mold remediation',
+        'Biohazard cleanup',
+        'Hazardous-material cleanup',
+        'Severe-odor remediation'
+      ]
+    }
+  };
+
+  // ===== BUILD YOUR OWN SERVICES =====
+  const BUILDER_SERVICES = {
+    interior_reset: {
+      category: 'INTERIOR RESET',
+      services: [
+        {
+          id: 'complete-interior-vacuum',
+          name: 'Complete Interior Vacuum',
+          price: 20,
+          description: 'Seats, Carpets, Floor mats, Accessible under-seat areas, Standard accessible vacuuming areas'
+        },
+        {
+          id: 'interior-surface-reset',
+          name: 'Interior Surface Reset',
+          price: 25,
+          description: 'Dashboard, Center console, Door panels, Steering wheel, Cup holders, Interior trim, Door jambs, Standard accessible touch points'
+        },
+        {
+          id: 'interior-glass',
+          name: 'Interior Glass',
+          price: 10
+        }
+      ]
+    },
+    precision_reset: {
+      category: 'PRECISION RESET',
+      services: [
+        {
+          id: 'vent-detail',
+          name: 'Vent Detail',
+          price: 10
+        },
+        {
+          id: 'precision-crevice-detail',
+          name: 'Precision Crevice Detail',
+          price: 15,
+          note: 'Compressed-air use included whenever needed. Do not charge separately for compressed air.'
+        },
+        {
+          id: 'trunk-cargo-area-detail',
+          name: 'Trunk / Cargo Area Detail',
+          price: 15
+        }
+      ]
+    },
+    fabric_reset: {
+      category: 'FABRIC RESET',
+      services: [
+        {
+          id: 'seat-shampoo-extraction',
+          name: 'Seat Shampoo / Extraction',
+          price: 40
+        },
+        {
+          id: 'carpet-shampoo-extraction',
+          name: 'Carpet Shampoo / Extraction',
+          price: 40
+        },
+        {
+          id: 'spot-stain-treatment',
+          name: 'Spot Stain Treatment',
+          price: 15,
+          disclaimer: 'Stain removal is not guaranteed and depends on the material, age, and condition.'
+        },
+        {
+          id: 'headliner-spot-cleaning',
+          name: 'Headliner Spot Cleaning',
+          price: 20,
+          disclaimer: 'Spot treatment only. Material and condition dependent. Not intended for complete headliner saturation.'
+        }
+      ]
+    },
+    specialty_reset: {
+      category: 'SPECIALTY RESET',
+      services: [
+        {
+          id: 'light-pet-hair-removal',
+          name: 'Light Pet Hair Removal',
+          price: 20,
+          group: 'pet-hair'
+        },
+        {
+          id: 'moderate-pet-hair-removal',
+          name: 'Moderate Pet Hair Removal',
+          price: 40,
+          group: 'pet-hair'
+        },
+        {
+          id: 'heavy-pet-hair-removal',
+          name: 'Heavy Pet Hair Removal',
+          price: null,
+          assessment: true,
+          group: 'pet-hair',
+          description: 'Assessment Required'
+        },
+        {
+          id: 'odor-neutralization',
+          name: 'Odor Neutralization',
+          price: 20,
+          note: 'Applies only to light or normal odor concerns. Do not offer severe-odor remediation.'
+        }
+      ]
+    }
+  };
 
   function getStoredSelection() {
     try {
@@ -178,20 +377,41 @@
 
     function recommendationFor(selected, subtotal) {
       if (!selected.length || isAssessmentMode()) return null;
+      
       const names = selected.map(function (input) { return input.dataset.service; });
-      const fullResetCovers = ['Interior Vacuum', 'Light Surface Wipe-Down', 'Thorough Interior-Surface Cleaning', 'Interior Glass', 'Interior Finish & UV Protection'];
-      const deepResetCovers = ['Interior Vacuum', 'Light Surface Wipe-Down', 'Thorough Interior-Surface Cleaning', 'Interior Glass', 'Air Blowout, Vents & Crevices', 'Door-Jamb Cleaning', 'Full Carpet Extraction', 'Full Cloth-Seat Extraction', 'Leather Cleaning & Conditioning', 'Interior Finish & UV Protection', 'Cargo-Area Cleaning'];
+      
+      // Quick Reset recommendation: $40 or less with core maintenance services
+      const quickResetServices = ['Complete Interior Vacuum', 'Interior Surface Reset'];
+      if (subtotal <= 40 && names.every(function (n) { return quickResetServices.includes(n); })) {
+        return { 
+          package: 'Quick Reset', 
+          price: 40, 
+          text: 'Your selections are close to the Quick Reset, which bundles the core maintenance services at a better overall value.' 
+        };
+      }
 
-      if (subtotal <= 40 && names.every(function (name) { return ['Interior Vacuum', 'Light Surface Wipe-Down'].includes(name); })) {
-        return { package: 'Quick Reset', price: 40, text: 'The Quick Reset already covers this maintenance-style combination for $40.' };
+      // Full Reset recommendation: Services that match Full Reset scope
+      const fullResetServices = ['Complete Interior Vacuum', 'Interior Surface Reset', 'Interior Glass', 'Vent Detail', 'Precision Crevice Detail', 'Trunk / Cargo Area Detail'];
+      const fullResetMatches = names.filter(function (n) { return fullResetServices.includes(n); }).length;
+      if (subtotal >= 75 && subtotal <= 100 && fullResetMatches >= 4) {
+        return { 
+          package: 'Full Reset', 
+          price: 90, 
+          text: 'Your selections closely match the Full Reset. It includes the complete maintenance and precision interior service for a better overall value.' 
+        };
       }
-      if (subtotal >= 75 && subtotal <= 90 && names.every(function (name) { return fullResetCovers.includes(name); })) {
-        return { package: 'Full Reset', price: 75, text: 'The Full Reset offers equal or better preset coverage for this mix of services.' };
+
+      // Deep Reset recommendation: Carpet + seat extraction with core services
+      const hasExtraction = names.includes('Carpet Shampoo / Extraction') || names.includes('Seat Shampoo / Extraction');
+      const hasCoreServices = names.some(function (n) { return ['Complete Interior Vacuum', 'Interior Surface Reset'].includes(n); });
+      if (hasExtraction && hasCoreServices && subtotal >= 150) {
+        return { 
+          package: 'Deep Reset', 
+          price: 180, 
+          text: 'Your selections closely match the Deep Reset, which combines the complete interior service with restorative fabric treatment.' 
+        };
       }
-      const deepMatches = names.filter(function (name) { return deepResetCovers.includes(name); }).length;
-      if (subtotal >= 150 && deepMatches >= 6) {
-        return { package: 'Deep Reset', price: 150, text: 'The Deep Reset is a better-fit preset at this coverage level and starting price.' };
-      }
+
       return null;
     }
 
